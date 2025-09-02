@@ -1,0 +1,28 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jupiterpay-web
+    volumes:
+      - ./:/var/www/html/
+    ports:
+      - '80:80'
+
+  https-portal:
+    image: steveltn/https-portal:1
+    ports:
+      - '443:443'
+    links:
+      - web
+    restart: always
+    environment:
+      DOMAINS: 'localhost -> http://web:80'
+      STAGE: 'local' # Don't use production until staging works
+      # FORCE_RENEW: 'true'
+
+networks:
+  default:
+    driver: localserver
+    name: localserver
+    external: true
