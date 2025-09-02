@@ -29,6 +29,9 @@
                         </div>
                     </a>
                 </li>
+
+                @if($status == 1 && $banido == 0)
+
                 <li class="nav-item">
                     <!-- label-->
                     <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
@@ -157,7 +160,10 @@
                         <li class="nav-item"><a class="nav-link" href="/administrador/ajustes/landing-page"><span class="nav-link-text ps-1">Landing Page</span></a></li>
                     </ul>
                 </li>
+
+                @endif
             </ul>
+            @if($status == 1 && $banido == 0)
             <div class="settings my-3">
                 <div class="card shadow-none">
                     <div class="card-body alert mb-0" role="alert">
@@ -176,6 +182,7 @@
                     </div>
                 </div>
             </div>
+            @endif
         </div>
     </div>
 </nav>

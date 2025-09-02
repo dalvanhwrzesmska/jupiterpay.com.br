@@ -21,6 +21,7 @@ class DashboardControlller extends Controller
         $nome = Auth::user()->name;
         $status = Auth::user()->status;
         $permission = Auth::user()->permission;
+        $banido = Auth::user()->banido;
         $produtoFiltro = $request->input('produto', 'todos');
         $periodoFiltro = $request->input('periodo', 'tudo');
 
@@ -87,11 +88,13 @@ class DashboardControlller extends Controller
 		$solicitacoes = (clone $solicitacoes);
 
         $ver = $request->segment(1);
+        $ver = 'v2';
         $viewName = $ver === 'v2' ? 'dashboard-v2.index' : 'dashboard';
 
         return view($viewName, compact(
             'nome',
             'status',
+            'banido',
             'result_solicitacoes',
             'permission',
             'solicitacoes',

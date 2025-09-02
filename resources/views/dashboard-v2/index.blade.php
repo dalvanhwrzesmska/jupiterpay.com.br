@@ -1,6 +1,73 @@
 @extends('dashboard-v2.layout')
 
 @section('content')
+    <!-- Modal: Status de Cadastro -->
+    <div class="modal fade" id="statusModal" tabindex="-1" aria-labelledby="statusModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="statusModalLabel">Atenção</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    Você precisa concluir o cadastro para ativar sua conta.
+                </div>
+                <div class="modal-footer">
+                    <a href="{{ url('/enviar-doc') }}" class="btn btn-falcon-success mr-1 mb-1">Enviar Documentos</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if($status == 0 && $banido == 0)
+        <div class="p-5 container-xl">
+            <div class="row">
+                <div class="col-xl-12">
+                    <div class="card card-raised">
+                        <div class="p-3 d-grid border-bottom border-block-end-dashed">
+                            <h5 class="card-title">Ativação de Conta</h5>
+                            <p class="card-text">Para ativar sua conta, é necessário o envio de documentos. Por favor, envie os documentos para análise.</p>
+                            <a href="{{ url('/enviar-doc') }}" class="btn btn-falcon-info mr-1 mb-1">Enviar Documentos</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @if($banido == 1)
+        <div class="p-5 container-xl">
+            <div class="row">
+                <div class="col-xl-12">
+                    <div class="card card-raised">
+                        <div class="p-3 d-grid border-bottom border-block-end-dashed">
+                            <h5 class="card-title">Sua conta está em Bloqueada</h5>
+                            <p class="card-text">Em caso de dúvidas entre em contato com o suporte.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @if($status == 5 && $banido == 0)
+        <div class="p-5 container-xl">
+            <div class="row">
+                <div class="col-xl-12">
+                    <div class="card card-raised">
+                        <div class="p-3 d-grid border-bottom border-block-end-dashed">
+                            <h5 class="card-title">Sua conta está em Análise</h5>
+                            <p class="card-text">Nossa equipe está analisando seus documentos e logo vai entrar em contato.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @if($status == 1 && $banido == 0)
+    {{-- Cards de resumo --}}
+
     <div class="row g-3 mb-3">
         <div class="col-md-6 col-xxl-3">
             <div class="card h-md-100 ecommerce-card-min-width">
@@ -393,64 +460,6 @@
         </div>
 
     </div>--->
+    
+    @endif
 @endsection
-
-<div class="modal fade" id="authentication-modal" tabindex="-1" role="dialog"
-    aria-labelledby="authentication-modal-label" aria-hidden="true">
-    <div class="modal-dialog mt-6" role="document">
-        <div class="modal-content border-0">
-            <div class="modal-header px-5 position-relative modal-shape-header bg-shape">
-                <div class="position-relative z-1">
-                    <h4 class="mb-0 text-white" id="authentication-modal-label">Register</h4>
-                    <p class="fs-10 mb-0 text-white">Please create your free Falcon account</p>
-                </div>
-                <div data-bs-theme="dark">
-                    <button class="btn-close position-absolute top-0 end-0 mt-2 me-2" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
-                </div>
-            </div>
-            <div class="modal-body py-4 px-5">
-                <form>
-                    <div class="mb-3">
-                        <label class="form-label" for="modal-auth-name">Name</label>
-                        <input class="form-control" type="text" autocomplete="on" id="modal-auth-name" />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="modal-auth-email">Email address</label>
-                        <input class="form-control" type="email" autocomplete="on" id="modal-auth-email" />
-                    </div>
-                    <div class="row gx-2">
-                        <div class="mb-3 col-sm-6">
-                            <label class="form-label" for="modal-auth-password">Password</label>
-                            <input class="form-control" type="password" autocomplete="on" id="modal-auth-password" />
-                        </div>
-                        <div class="mb-3 col-sm-6">
-                            <label class="form-label" for="modal-auth-confirm-password">Confirm Password</label>
-                            <input class="form-control" type="password" autocomplete="on"
-                                id="modal-auth-confirm-password" />
-                        </div>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="modal-auth-register-checkbox" />
-                        <label class="form-label" for="modal-auth-register-checkbox">I accept the <a href="#!">terms
-                            </a>and <a class="white-space-nowrap" href="#!">privacy policy</a></label>
-                    </div>
-                    <div class="mb-3">
-                        <button class="btn btn-primary d-block w-100 mt-3" type="submit" name="submit">Register</button>
-                    </div>
-                </form>
-                <div class="position-relative mt-5">
-                    <hr />
-                    <div class="divider-content-center">or register with</div>
-                </div>
-                <div class="row g-2 mt-2">
-                    <div class="col-sm-6"><a class="btn btn-outline-google-plus btn-sm d-block w-100" href="#"><span
-                                class="fab fa-google-plus-g me-2" data-fa-transform="grow-8"></span> google</a></div>
-                    <div class="col-sm-6"><a class="btn btn-outline-facebook btn-sm d-block w-100" href="#"><span
-                                class="fab fa-facebook-square me-2" data-fa-transform="grow-8"></span> facebook</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
