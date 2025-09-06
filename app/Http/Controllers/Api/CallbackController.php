@@ -21,6 +21,18 @@ class CallbackController extends Controller
     {
         $data = $request->all();
         if ($data['status'] == "paid") {
+
+            if(!isset($data['orderId']) && isset($data['idTransaction']))
+            {
+                $data['orderId'] = $data['idTransaction'];
+            }
+
+            if(empty($data['orderId']))
+            {
+                Log::error("[PIX-IN] Callback sem orderId ou idTransaction");
+                return response()->json(['status' => false]);
+            }
+
             $cashin = Solicitacoes::where('idTransaction', $data['orderId'])->first();
             if (!$cashin || $cashin->status != "WAITING_FOR_APPROVAL") {
                 return response()->json(['status' => false]);

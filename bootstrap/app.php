@@ -16,7 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\AtualizarSaldosClientes::class,
         ]);
         $middleware->validateCsrfTokens([
-             '/cashtime/*'
+             '/cashtime/*',
+             '/podpay/*',
+             '/jupiterpay/*'
         ]);
 
         $middleware->alias([
