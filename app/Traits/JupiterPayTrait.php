@@ -56,7 +56,7 @@ trait JupiterPayTrait
                     "telefone"    => $data->phone,
                     "document" => $document
                 ],
-                "amount" => intval($data->amount * 100)
+                "amount" => $data->amount
             ];
 
             $response = Http::withHeaders([
