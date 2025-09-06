@@ -6864,3 +6864,4 @@ docReady(echartsBarStackedChartInit);
 docReady(echartsPieEdgeAlignChartInit);
 docReady(echartsStackedVerticalChartInit);
 docReady(echartsNestedPiesChartInit);
+//# sourceMappingURL=echarts-example.js.map

@@ -68,6 +68,14 @@
     @if($status == 1 && $banido == 0)
     {{-- Cards de resumo --}}
 
+    <script>
+        const VENDAS_REALIZADAS_CARTAO = {{ $porcentagemDeVendas['cartao'] ?? 0 }};
+        const VENDAS_REALIZADAS_PIX = {{ $porcentagemDeVendas['pix'] ?? 0 }};
+
+        const DATAS_VENDAS = {!! json_encode($dates) !!};
+        const VALORES_VENDAS = {!! json_encode($values) !!};
+    </script>
+
     <div class="row g-3 mb-3">
         <div class="col-md-6 col-xxl-3">
             <div class="card h-md-100 ecommerce-card-min-width">
@@ -120,18 +128,13 @@
                             <div class="fs-11 mt-3">
                                 <div class="d-flex flex-between-center mb-1">
                                     <div class="d-flex align-items-center"><span class="dot bg-primary"></span><span
-                                            class="fw-semi-bold">---</span></div>
-                                    <div class="d-xxl-none">--%</div>
+                                            class="fw-semi-bold">Pix</span></div>
+                                    <div class="d-xxl-none">{{ $porcentagemDeVendas['pix'] ?? 0 }}%</div>
                                 </div>
                                 <div class="d-flex flex-between-center mb-1">
                                     <div class="d-flex align-items-center"><span class="dot bg-info"></span><span
-                                            class="fw-semi-bold">--</span></div>
-                                    <div class="d-xxl-none">--%</div>
-                                </div>
-                                <div class="d-flex flex-between-center mb-1">
-                                    <div class="d-flex align-items-center"><span class="dot bg-300"></span><span
-                                            class="fw-semi-bold">--</span></div>
-                                    <div class="d-xxl-none">--%</div>
+                                            class="fw-semi-bold">Cartão</span></div>
+                                    <div class="d-xxl-none">{{ $porcentagemDeVendas['cartao'] ?? 0 }}%</div>
                                 </div>
                             </div>
                         </div>

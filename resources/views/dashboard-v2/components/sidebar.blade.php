@@ -45,6 +45,24 @@
         padding-left: 3px;
         padding-right: 3px;
     }
+    .logo-website {
+        background: url('https://i.imgur.com/VNInZj4.png');
+        width: 135px;
+        height: 45px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        border: 0;
+    }
+    [data-bs-theme="dark"] .logo-website {
+        background: url('https://i.imgur.com/OwCphDc.png')!important;
+        background-size: contain!important;
+        background-repeat: no-repeat!important;
+        background-position: center!important;
+    }
+    .logo-website::selection{
+        border: none!important;
+    }
 </style>
 <nav class="navbar navbar-light navbar-vertical navbar-expand-xl">
     <script>
@@ -60,9 +78,10 @@
                 data-bs-placement="left" title="Toggle Navigation"><span class="navbar-toggle-icon"><span
                         class="toggle-line"></span></span></button>
 
-        </div><a class="navbar-brand" href="{{ route('dashboard.v2') }}">
-            <div class="d-flex align-items-center py-3"><img class="me-2"
-                    src="https://i.imgur.com/VNInZj4.png" alt="" width="100" />
+        </div>
+        <a class="navbar-brand" href="{{ route('dashboard.v2') }}">
+            <div class="d-flex align-items-center py-3">
+                <imgs class="me-2 logo-website" alt="" width="100" />
             </div>
         </a>
     </div>

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Helpers\Helper;
 use App\Models\CheckoutBuild;
+use Brick\Math\Exception\DivisionByZeroException;
 
 class DashboardControlller extends Controller
 {
@@ -54,9 +55,7 @@ class DashboardControlller extends Controller
             ->whereBetween('date', [$startDate, $endDate])
             ->sortByDesc(fn($item) => Carbon::parse($item->date))
             ->take(4);
-      
         }
-
         // Totais
         $totalPaidOut = $solicitacoesPaid->count();
         $totalRequests = $solicitacoes->count();
@@ -68,7 +67,7 @@ class DashboardControlller extends Controller
 
         // Dados para gráfico
         $result_solicitacoes = DB::table('solicitacoes')
-            ->selectRaw("DATE(date) as dia, SUM(amount) as valor")
+            ->selectRaw("DATE(date) as dia, COUNT(id) as valor")
             ->where('user_id', $userId)
             ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
                 $query->whereBetween('date', [$startDate, $endDate]);
@@ -87,11 +86,20 @@ class DashboardControlller extends Controller
 
 		$solicitacoes = (clone $solicitacoes);
 
+        $vendas = [
+            'cartao' => 0,
+            'pix'    => $totalPaidOut,
+            'total'  => $totalPaidOut
+        ];
+
+        $porcentagemDeVendas = $this->calcularPorcentagem($vendas);
+
         $ver = $request->segment(1);
         $ver = 'v2';
         $viewName = $ver === 'v2' ? 'dashboard-v2.index' : 'dashboard';
 
         return view($viewName, compact(
+            'porcentagemDeVendas',
             'nome',
             'status',
             'banido',
@@ -111,6 +119,26 @@ class DashboardControlller extends Controller
             'values',
             'produtos'
         ));
+    }
+
+    private function calcularPorcentagem($vendas)
+    {
+        if ($vendas['total'] <= 1) {
+            return 0;
+        }
+
+        $returnKeys = [];
+
+        foreach ($vendas as $key => $value) {
+            try {
+                $porcentagem[$key] = ($value / $vendas['total']) * 100;
+                $returnKeys[$key] = round($porcentagem[$key] ?? 0, 2);
+            } catch (\DivisionByZeroException $e) {
+                $porcentagem[$key] = 0;
+            }
+        }
+
+        return $returnKeys;
     }
 
     private function aplicarFiltros($query, $startDate, $endDate, $produtoFiltro)

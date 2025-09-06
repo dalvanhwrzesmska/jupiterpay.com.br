@@ -7,4 +7,4 @@
 <script src="/dashboard-v2/vendors/fontawesome/all.min.js"></script>
 <script src="/dashboard-v2/vendors/lodash/lodash.min.js"></script>
 <script src="/dashboard-v2/vendors/list.js/list.min.js"></script>
-<script src="/dashboard-v2/assets/js/theme.js"></script>
+<script src="/dashboard-v2/assets/js/theme.js?v=1234"></script>

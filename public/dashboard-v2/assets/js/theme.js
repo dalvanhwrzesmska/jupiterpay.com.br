@@ -5715,362 +5715,6 @@ var getTemplate = function getTemplate(event) {
 };
 
 /* -------------------------------------------------------------------------- */
-/*                          D3 Packed Bubble Chart                            */
-/* -------------------------------------------------------------------------- */
-
-var D3PackedBubbleInit = function D3PackedBubbleInit() {
-  var $d3PackedBubble = document.querySelector('.d3-packed-bubble-chart');
-  if ($d3PackedBubble) {
-    var width = 960;
-    var height = 960;
-    var itemsSpacing = 30;
-    var svg = d3.select('.d3-packed-bubble-svg');
-    var tooltip = d3.select('.d3-packed-bubble-tooltip');
-    var tooltipDot = tooltip.select('.d3-tooltip-dot');
-    var tooltipName = tooltip.select('.d3-tooltip-name');
-    var tooltipValue = tooltip.select('.d3-tooltip-value');
-    var tooltipStyles = {
-      backgroundColor: utils.getColor('gray-100'),
-      tooltipNameColor: utils.getColor('gray-700'),
-      tooltipValueColor: utils.getColor('gray-700')
-    };
-    var labelStyles = {
-      fill: '#ffffff',
-      fontSize: '1.8rem'
-    };
-    var packedBubbleData = [{
-      name: 'Blockchain',
-      value: 160,
-      color: '#2A7BE4'
-    }, {
-      name: 'NFT',
-      value: 20,
-      color: '#1956A6'
-    }, {
-      name: 'HTML',
-      value: 90,
-      color: '#195099'
-    }, {
-      name: 'Crypto',
-      value: 57,
-      color: '#2A7BE4'
-    }, {
-      name: 'Photoshop',
-      value: 117,
-      color: '#2A7BE4'
-    }, {
-      name: 'UX',
-      value: 20,
-      color: '#1956A6'
-    }, {
-      name: 'AWS',
-      value: 90,
-      color: '#195099'
-    }, {
-      name: '3D',
-      value: 33,
-      color: '#9DBFEB'
-    }, {
-      name: 'Writing',
-      value: 117,
-      color: '#2A7BE4'
-    }, {
-      name: 'sql',
-      value: 20,
-      color: '#1956A6'
-    }, {
-      name: 'Blender',
-      value: 90,
-      color: '#195099'
-    }, {
-      name: 'UI/UX',
-      value: 33,
-      color: '#9DBFEB'
-    }, {
-      name: 'Blockchain',
-      value: 117,
-      color: '#2A7BE4'
-    }, {
-      name: 'css',
-      value: 20,
-      color: '#1956A6'
-    }, {
-      name: 'Marketing',
-      value: 90,
-      color: '#195099'
-    }, {
-      name: 'Meta',
-      value: 33,
-      color: '#9DBFEB'
-    }, {
-      name: 'js',
-      value: 12,
-      color: '#0F67D9'
-    }, {
-      name: 'FOREX',
-      value: 66,
-      color: '#7FA5D5'
-    }, {
-      name: 'UI',
-      value: 33,
-      color: '#8ABBFB'
-    }, {
-      name: 'Vector',
-      value: 56,
-      color: '#85B6F5'
-    }, {
-      name: 'CAD',
-      value: 28,
-      color: '#6486B4'
-    }, {
-      name: 'Python',
-      value: 66,
-      color: '#2A7BE4'
-    }, {
-      name: 'Adobe',
-      value: 66,
-      color: '#68A0E9'
-    }, {
-      name: 'C#',
-      value: 20,
-      color: '#385780'
-    }, {
-      name: 'Branding',
-      value: 88,
-      color: '#74A2DE'
-    }, {
-      name: 'Bitcoin',
-      value: 80,
-      color: '#4E7AB4'
-    }, {
-      name: 'AI',
-      value: 34,
-      color: '#71AFFF'
-    }];
-    var generateChart = function generateChart(data) {
-      var bubble = function bubble(bubbleData) {
-        return d3.pack().size([width, height]).padding(itemsSpacing)(d3.hierarchy({
-          children: bubbleData
-        }).sum(function (d) {
-          return d.value;
-        }));
-      };
-      tooltip.style('visibility', 'hidden');
-      svg.attr('width', '100%').attr('height', '100%').attr('viewBox', "-20 10 ".concat(width, " ").concat(height));
-      var root = bubble(data);
-      var node = svg.selectAll().data(root.children).enter().append('g').style('cursor', 'pointer').style('pointer-events', 'all').attr('text-anchor', 'middle').on('mousemove', function (e) {
-        return tooltip.style('top', "".concat(e.clientY - 40, "px")).style('left', "".concat(e.clientX - 40, "px"));
-      }).attr('transform', function (d) {
-        return "translate(".concat(d.x, ", ").concat(d.y, ")");
-      });
-      var circle = node.append('circle').style('fill', function (d) {
-        return d.data.color;
-      }).on('mouseover', function (e, d) {
-        d3.select(e.target).transition().ease(d3.easeExpInOut).duration(200).attr('r', function (diagram) {
-          return diagram.r * 1.1;
-        });
-        tooltip.style('visibility', 'visible').style('z-index', '100000').style('background-color', tooltipStyles.backgroundColor).style('border', "1px solid ".concat(d.data.color));
-        tooltipDot.style('background-color', d.data.color);
-        tooltipName.text(d.data.name).style('color', tooltipStyles.tooltipNameColor);
-        tooltipValue.text(d.data.value).style('color', tooltipStyles.tooltipValueColor);
-      }).on('mouseout', function (e) {
-        d3.select(e.target).transition().ease(d3.easeExpInOut).duration(200).attr('r', function (d) {
-          return d.r;
-        });
-        tooltip.style('visibility', 'hidden');
-      });
-      var label = node.append('text').style('fill', labelStyles.fill).style('font-size', labelStyles.fontSize).style('pointer-events', 'none').style('opacity', 0).attr('dy', '.35em').text(function (d) {
-        return d.data.name;
-      });
-      node.transition().ease(d3.easeExpInOut).duration(1000);
-      circle.transition().ease(d3.easeExpInOut).duration(1000).attr('r', function (d) {
-        return d.r;
-      });
-      label.transition().delay(400).ease(d3.easeExpInOut).duration(2000).style('opacity', 1);
-    };
-    generateChart(packedBubbleData);
-  }
-};
-
-/* -------------------------------------------------------------------------- */
-/*                           Trending Keywords                                */
-/* -------------------------------------------------------------------------- */
-
-var trendingKeywordsInit = function trendingKeywordsInit() {
-  var $d3TrendingKeywords = document.querySelector('.d3-trending-keywords');
-  if ($d3TrendingKeywords) {
-    var width = 960;
-    var height = 960;
-    var itemsSpacing = 30;
-    var svg = d3.select('.d3-trending-keywords-svg');
-    var tooltip = d3.select('.d3-trending-keywords-tooltip');
-    var tooltipDot = tooltip.select('.d3-tooltip-dot');
-    var tooltipName = tooltip.select('.d3-tooltip-name');
-    var tooltipValue = tooltip.select('.d3-tooltip-value');
-    var tooltipStyles = {
-      backgroundColor: utils.getColor('gray-100'),
-      tooltipNameColor: utils.getColor('gray-700'),
-      tooltipValueColor: utils.getColor('gray-700')
-    };
-    var labelStyles = {
-      fill: '#ffffff',
-      fontSize: '1.8rem'
-    };
-    var trendingKeywordsData = [{
-      name: 'Blockchain',
-      value: 160,
-      color: '#2A7BE4'
-    }, {
-      name: 'NFT',
-      value: 20,
-      color: '#1956A6'
-    }, {
-      name: 'HTML',
-      value: 90,
-      color: '#195099'
-    }, {
-      name: 'Crypto',
-      value: 57,
-      color: '#2A7BE4'
-    }, {
-      name: 'Photoshop',
-      value: 117,
-      color: '#2A7BE4'
-    }, {
-      name: 'UX',
-      value: 20,
-      color: '#1956A6'
-    }, {
-      name: 'AWS',
-      value: 90,
-      color: '#195099'
-    }, {
-      name: '3D',
-      value: 33,
-      color: '#9DBFEB'
-    }, {
-      name: 'Writing',
-      value: 117,
-      color: '#2A7BE4'
-    }, {
-      name: 'sql',
-      value: 20,
-      color: '#1956A6'
-    }, {
-      name: 'Blender',
-      value: 90,
-      color: '#195099'
-    }, {
-      name: 'UI/UX',
-      value: 33,
-      color: '#9DBFEB'
-    }, {
-      name: 'Blockchain',
-      value: 117,
-      color: '#2A7BE4'
-    }, {
-      name: 'css',
-      value: 20,
-      color: '#1956A6'
-    }, {
-      name: 'Marketing',
-      value: 90,
-      color: '#195099'
-    }, {
-      name: 'Meta',
-      value: 33,
-      color: '#9DBFEB'
-    }, {
-      name: 'js',
-      value: 12,
-      color: '#0F67D9'
-    }, {
-      name: 'FOREX',
-      value: 66,
-      color: '#7FA5D5'
-    }, {
-      name: 'UI',
-      value: 33,
-      color: '#8ABBFB'
-    }, {
-      name: 'Vector',
-      value: 56,
-      color: '#85B6F5'
-    }, {
-      name: 'CAD',
-      value: 28,
-      color: '#6486B4'
-    }, {
-      name: 'Python',
-      value: 66,
-      color: '#2A7BE4'
-    }, {
-      name: 'Adobe',
-      value: 66,
-      color: '#68A0E9'
-    }, {
-      name: 'C#',
-      value: 20,
-      color: '#385780'
-    }, {
-      name: 'Branding',
-      value: 88,
-      color: '#74A2DE'
-    }, {
-      name: 'Bitcoin',
-      value: 80,
-      color: '#4E7AB4'
-    }, {
-      name: 'AI',
-      value: 34,
-      color: '#71AFFF'
-    }];
-    var generateChart = function generateChart(data) {
-      var bubble = function bubble(bubbleData) {
-        return d3.pack().size([width, height]).padding(itemsSpacing)(d3.hierarchy({
-          children: bubbleData
-        }).sum(function (d) {
-          return d.value;
-        }));
-      };
-      tooltip.style('visibility', 'hidden');
-      svg.attr('width', '100%').attr('height', '100%').attr('viewBox', "-20 10 ".concat(width, " ").concat(height));
-      var root = bubble(data);
-      var node = svg.selectAll().data(root.children).enter().append('g').style('cursor', 'pointer').style('pointer-events', 'all').attr('text-anchor', 'middle').on('mousemove', function (e) {
-        return tooltip.style('top', "".concat(e.clientY - 40, "px")).style('left', "".concat(e.clientX - 40, "px"));
-      }).attr('transform', function (d) {
-        return "translate(".concat(d.x, ", ").concat(d.y, ")");
-      });
-      var circle = node.append('circle').style('fill', function (d) {
-        return d.data.color;
-      }).on('mouseover', function (e, d) {
-        d3.select(e.target).transition().ease(d3.easeExpInOut).duration(200).attr('r', function (diagram) {
-          return diagram.r * 1.1;
-        });
-        tooltip.style('visibility', 'visible').style('z-index', '100000').style('background-color', tooltipStyles.backgroundColor).style('border', "1px solid ".concat(d.data.color));
-        tooltipDot.style('background-color', d.data.color);
-        tooltipName.text(d.data.name).style('color', tooltipStyles.tooltipNameColor);
-        tooltipValue.text(d.data.value).style('color', tooltipStyles.tooltipValueColor);
-      }).on('mouseout', function (e) {
-        d3.select(e.target).transition().ease(d3.easeExpInOut).duration(200).attr('r', function (d) {
-          return d.r;
-        });
-        tooltip.style('visibility', 'hidden');
-      });
-      var label = node.append('text').style('fill', labelStyles.fill).style('font-size', labelStyles.fontSize).style('pointer-events', 'none').style('opacity', 0).attr('dy', '.35em').text(function (d) {
-        return d.data.name;
-      });
-      node.transition().ease(d3.easeExpInOut).duration(1000);
-      circle.transition().ease(d3.easeExpInOut).duration(1000).attr('r', function (d) {
-        return d.r;
-      });
-      label.transition().delay(400).ease(d3.easeExpInOut).duration(2000).style('opacity', 1);
-    };
-    generateChart(trendingKeywordsData);
-  }
-};
-
-/* -------------------------------------------------------------------------- */
 /*                                  bar-chart                                 */
 /* -------------------------------------------------------------------------- */
 
@@ -6706,6 +6350,362 @@ var productShareDoughnutInit = function productShareDoughnutInit() {
     };
   };
   chartJsInit(marketShareDoughnutElement, getOptions);
+};
+
+/* -------------------------------------------------------------------------- */
+/*                          D3 Packed Bubble Chart                            */
+/* -------------------------------------------------------------------------- */
+
+var D3PackedBubbleInit = function D3PackedBubbleInit() {
+  var $d3PackedBubble = document.querySelector('.d3-packed-bubble-chart');
+  if ($d3PackedBubble) {
+    var width = 960;
+    var height = 960;
+    var itemsSpacing = 30;
+    var svg = d3.select('.d3-packed-bubble-svg');
+    var tooltip = d3.select('.d3-packed-bubble-tooltip');
+    var tooltipDot = tooltip.select('.d3-tooltip-dot');
+    var tooltipName = tooltip.select('.d3-tooltip-name');
+    var tooltipValue = tooltip.select('.d3-tooltip-value');
+    var tooltipStyles = {
+      backgroundColor: utils.getColor('gray-100'),
+      tooltipNameColor: utils.getColor('gray-700'),
+      tooltipValueColor: utils.getColor('gray-700')
+    };
+    var labelStyles = {
+      fill: '#ffffff',
+      fontSize: '1.8rem'
+    };
+    var packedBubbleData = [{
+      name: 'Blockchain',
+      value: 160,
+      color: '#2A7BE4'
+    }, {
+      name: 'NFT',
+      value: 20,
+      color: '#1956A6'
+    }, {
+      name: 'HTML',
+      value: 90,
+      color: '#195099'
+    }, {
+      name: 'Crypto',
+      value: 57,
+      color: '#2A7BE4'
+    }, {
+      name: 'Photoshop',
+      value: 117,
+      color: '#2A7BE4'
+    }, {
+      name: 'UX',
+      value: 20,
+      color: '#1956A6'
+    }, {
+      name: 'AWS',
+      value: 90,
+      color: '#195099'
+    }, {
+      name: '3D',
+      value: 33,
+      color: '#9DBFEB'
+    }, {
+      name: 'Writing',
+      value: 117,
+      color: '#2A7BE4'
+    }, {
+      name: 'sql',
+      value: 20,
+      color: '#1956A6'
+    }, {
+      name: 'Blender',
+      value: 90,
+      color: '#195099'
+    }, {
+      name: 'UI/UX',
+      value: 33,
+      color: '#9DBFEB'
+    }, {
+      name: 'Blockchain',
+      value: 117,
+      color: '#2A7BE4'
+    }, {
+      name: 'css',
+      value: 20,
+      color: '#1956A6'
+    }, {
+      name: 'Marketing',
+      value: 90,
+      color: '#195099'
+    }, {
+      name: 'Meta',
+      value: 33,
+      color: '#9DBFEB'
+    }, {
+      name: 'js',
+      value: 12,
+      color: '#0F67D9'
+    }, {
+      name: 'FOREX',
+      value: 66,
+      color: '#7FA5D5'
+    }, {
+      name: 'UI',
+      value: 33,
+      color: '#8ABBFB'
+    }, {
+      name: 'Vector',
+      value: 56,
+      color: '#85B6F5'
+    }, {
+      name: 'CAD',
+      value: 28,
+      color: '#6486B4'
+    }, {
+      name: 'Python',
+      value: 66,
+      color: '#2A7BE4'
+    }, {
+      name: 'Adobe',
+      value: 66,
+      color: '#68A0E9'
+    }, {
+      name: 'C#',
+      value: 20,
+      color: '#385780'
+    }, {
+      name: 'Branding',
+      value: 88,
+      color: '#74A2DE'
+    }, {
+      name: 'Bitcoin',
+      value: 80,
+      color: '#4E7AB4'
+    }, {
+      name: 'AI',
+      value: 34,
+      color: '#71AFFF'
+    }];
+    var generateChart = function generateChart(data) {
+      var bubble = function bubble(bubbleData) {
+        return d3.pack().size([width, height]).padding(itemsSpacing)(d3.hierarchy({
+          children: bubbleData
+        }).sum(function (d) {
+          return d.value;
+        }));
+      };
+      tooltip.style('visibility', 'hidden');
+      svg.attr('width', '100%').attr('height', '100%').attr('viewBox', "-20 10 ".concat(width, " ").concat(height));
+      var root = bubble(data);
+      var node = svg.selectAll().data(root.children).enter().append('g').style('cursor', 'pointer').style('pointer-events', 'all').attr('text-anchor', 'middle').on('mousemove', function (e) {
+        return tooltip.style('top', "".concat(e.clientY - 40, "px")).style('left', "".concat(e.clientX - 40, "px"));
+      }).attr('transform', function (d) {
+        return "translate(".concat(d.x, ", ").concat(d.y, ")");
+      });
+      var circle = node.append('circle').style('fill', function (d) {
+        return d.data.color;
+      }).on('mouseover', function (e, d) {
+        d3.select(e.target).transition().ease(d3.easeExpInOut).duration(200).attr('r', function (diagram) {
+          return diagram.r * 1.1;
+        });
+        tooltip.style('visibility', 'visible').style('z-index', '100000').style('background-color', tooltipStyles.backgroundColor).style('border', "1px solid ".concat(d.data.color));
+        tooltipDot.style('background-color', d.data.color);
+        tooltipName.text(d.data.name).style('color', tooltipStyles.tooltipNameColor);
+        tooltipValue.text(d.data.value).style('color', tooltipStyles.tooltipValueColor);
+      }).on('mouseout', function (e) {
+        d3.select(e.target).transition().ease(d3.easeExpInOut).duration(200).attr('r', function (d) {
+          return d.r;
+        });
+        tooltip.style('visibility', 'hidden');
+      });
+      var label = node.append('text').style('fill', labelStyles.fill).style('font-size', labelStyles.fontSize).style('pointer-events', 'none').style('opacity', 0).attr('dy', '.35em').text(function (d) {
+        return d.data.name;
+      });
+      node.transition().ease(d3.easeExpInOut).duration(1000);
+      circle.transition().ease(d3.easeExpInOut).duration(1000).attr('r', function (d) {
+        return d.r;
+      });
+      label.transition().delay(400).ease(d3.easeExpInOut).duration(2000).style('opacity', 1);
+    };
+    generateChart(packedBubbleData);
+  }
+};
+
+/* -------------------------------------------------------------------------- */
+/*                           Trending Keywords                                */
+/* -------------------------------------------------------------------------- */
+
+var trendingKeywordsInit = function trendingKeywordsInit() {
+  var $d3TrendingKeywords = document.querySelector('.d3-trending-keywords');
+  if ($d3TrendingKeywords) {
+    var width = 960;
+    var height = 960;
+    var itemsSpacing = 30;
+    var svg = d3.select('.d3-trending-keywords-svg');
+    var tooltip = d3.select('.d3-trending-keywords-tooltip');
+    var tooltipDot = tooltip.select('.d3-tooltip-dot');
+    var tooltipName = tooltip.select('.d3-tooltip-name');
+    var tooltipValue = tooltip.select('.d3-tooltip-value');
+    var tooltipStyles = {
+      backgroundColor: utils.getColor('gray-100'),
+      tooltipNameColor: utils.getColor('gray-700'),
+      tooltipValueColor: utils.getColor('gray-700')
+    };
+    var labelStyles = {
+      fill: '#ffffff',
+      fontSize: '1.8rem'
+    };
+    var trendingKeywordsData = [{
+      name: 'Blockchain',
+      value: 160,
+      color: '#2A7BE4'
+    }, {
+      name: 'NFT',
+      value: 20,
+      color: '#1956A6'
+    }, {
+      name: 'HTML',
+      value: 90,
+      color: '#195099'
+    }, {
+      name: 'Crypto',
+      value: 57,
+      color: '#2A7BE4'
+    }, {
+      name: 'Photoshop',
+      value: 117,
+      color: '#2A7BE4'
+    }, {
+      name: 'UX',
+      value: 20,
+      color: '#1956A6'
+    }, {
+      name: 'AWS',
+      value: 90,
+      color: '#195099'
+    }, {
+      name: '3D',
+      value: 33,
+      color: '#9DBFEB'
+    }, {
+      name: 'Writing',
+      value: 117,
+      color: '#2A7BE4'
+    }, {
+      name: 'sql',
+      value: 20,
+      color: '#1956A6'
+    }, {
+      name: 'Blender',
+      value: 90,
+      color: '#195099'
+    }, {
+      name: 'UI/UX',
+      value: 33,
+      color: '#9DBFEB'
+    }, {
+      name: 'Blockchain',
+      value: 117,
+      color: '#2A7BE4'
+    }, {
+      name: 'css',
+      value: 20,
+      color: '#1956A6'
+    }, {
+      name: 'Marketing',
+      value: 90,
+      color: '#195099'
+    }, {
+      name: 'Meta',
+      value: 33,
+      color: '#9DBFEB'
+    }, {
+      name: 'js',
+      value: 12,
+      color: '#0F67D9'
+    }, {
+      name: 'FOREX',
+      value: 66,
+      color: '#7FA5D5'
+    }, {
+      name: 'UI',
+      value: 33,
+      color: '#8ABBFB'
+    }, {
+      name: 'Vector',
+      value: 56,
+      color: '#85B6F5'
+    }, {
+      name: 'CAD',
+      value: 28,
+      color: '#6486B4'
+    }, {
+      name: 'Python',
+      value: 66,
+      color: '#2A7BE4'
+    }, {
+      name: 'Adobe',
+      value: 66,
+      color: '#68A0E9'
+    }, {
+      name: 'C#',
+      value: 20,
+      color: '#385780'
+    }, {
+      name: 'Branding',
+      value: 88,
+      color: '#74A2DE'
+    }, {
+      name: 'Bitcoin',
+      value: 80,
+      color: '#4E7AB4'
+    }, {
+      name: 'AI',
+      value: 34,
+      color: '#71AFFF'
+    }];
+    var generateChart = function generateChart(data) {
+      var bubble = function bubble(bubbleData) {
+        return d3.pack().size([width, height]).padding(itemsSpacing)(d3.hierarchy({
+          children: bubbleData
+        }).sum(function (d) {
+          return d.value;
+        }));
+      };
+      tooltip.style('visibility', 'hidden');
+      svg.attr('width', '100%').attr('height', '100%').attr('viewBox', "-20 10 ".concat(width, " ").concat(height));
+      var root = bubble(data);
+      var node = svg.selectAll().data(root.children).enter().append('g').style('cursor', 'pointer').style('pointer-events', 'all').attr('text-anchor', 'middle').on('mousemove', function (e) {
+        return tooltip.style('top', "".concat(e.clientY - 40, "px")).style('left', "".concat(e.clientX - 40, "px"));
+      }).attr('transform', function (d) {
+        return "translate(".concat(d.x, ", ").concat(d.y, ")");
+      });
+      var circle = node.append('circle').style('fill', function (d) {
+        return d.data.color;
+      }).on('mouseover', function (e, d) {
+        d3.select(e.target).transition().ease(d3.easeExpInOut).duration(200).attr('r', function (diagram) {
+          return diagram.r * 1.1;
+        });
+        tooltip.style('visibility', 'visible').style('z-index', '100000').style('background-color', tooltipStyles.backgroundColor).style('border', "1px solid ".concat(d.data.color));
+        tooltipDot.style('background-color', d.data.color);
+        tooltipName.text(d.data.name).style('color', tooltipStyles.tooltipNameColor);
+        tooltipValue.text(d.data.value).style('color', tooltipStyles.tooltipValueColor);
+      }).on('mouseout', function (e) {
+        d3.select(e.target).transition().ease(d3.easeExpInOut).duration(200).attr('r', function (d) {
+          return d.r;
+        });
+        tooltip.style('visibility', 'hidden');
+      });
+      var label = node.append('text').style('fill', labelStyles.fill).style('font-size', labelStyles.fontSize).style('pointer-events', 'none').style('opacity', 0).attr('dy', '.35em').text(function (d) {
+        return d.data.name;
+      });
+      node.transition().ease(d3.easeExpInOut).duration(1000);
+      circle.transition().ease(d3.easeExpInOut).duration(1000).attr('r', function (d) {
+        return d.r;
+      });
+      label.transition().delay(400).ease(d3.easeExpInOut).duration(2000).style('opacity', 1);
+    };
+    generateChart(trendingKeywordsData);
+  }
 };
 
 /* -------------------------------------------------------------------------- */
@@ -10015,14 +10015,11 @@ var marketShareInit = function marketShareInit() {
             }
           },
           data: [{
-            value: 5300000,
-            name: 'Samsung'
+            value: VENDAS_REALIZADAS_PIX * 10000,
+            name: 'Pix'
           }, {
-            value: 1900000,
-            name: 'Huawei'
-          }, {
-            value: 2000000,
-            name: 'Apple'
+            value: VENDAS_REALIZADAS_CARTAO * 10000,
+            name: 'Cartão'
           }]
         }]
       };
@@ -12717,12 +12714,17 @@ var totalSalesInit = function totalSalesInit() {
   var SELECT_MONTH = '.select-month';
   var $echartsLineTotalSales = document.querySelector(ECHART_LINE_TOTAL_SALES);
   var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  
+  // Use dados reais vindos do backend, se disponíveis
+  var chartDates = typeof DATAS_VENDAS !== 'undefined' && DATAS_VENDAS.length > 0 ? DATAS_VENDAS : ['2019-01-05', '2019-01-06', '2019-01-07', '2019-01-08', '2019-01-09', '2019-01-10', '2019-01-11', '2019-01-12', '2019-01-13', '2019-01-14', '2019-01-15', '2019-01-16'];
+  var chartValues = typeof VALORES_VENDAS !== 'undefined' && VALORES_VENDAS.length > 0 ? VALORES_VENDAS : [60, 80, 60, 80, 65, 130, 120, 100, 30, 40, 30, 70];
+  
   function getFormatter(params) {
     var _params$ = params[0],
       name = _params$.name,
       value = _params$.value;
     var date = new Date(name);
-    return "".concat(months[0], " ").concat(date.getDate(), ", ").concat(value);
+    return "".concat(months[date.getMonth()], " ").concat(date.getDate(), ", ").concat(value, " vendas");
   }
   if ($echartsLineTotalSales) {
     // Get options from data attribute
@@ -12751,7 +12753,7 @@ var totalSalesInit = function totalSalesInit() {
         },
         xAxis: {
           type: 'category',
-          data: ['2019-01-05', '2019-01-06', '2019-01-07', '2019-01-08', '2019-01-09', '2019-01-10', '2019-01-11', '2019-01-12', '2019-01-13', '2019-01-14', '2019-01-15', '2019-01-16'],
+          data: chartDates,
           boundaryGap: false,
           axisPointer: {
             lineStyle: {
@@ -12807,7 +12809,7 @@ var totalSalesInit = function totalSalesInit() {
         },
         series: [{
           type: 'line',
-          data: monthsnumber[0],
+          data: chartValues,
           lineStyle: {
             color: utils.getColors().primary
           },
@@ -14232,3 +14234,4 @@ docReady(advanceAjaxTableInit);
 docReady(listInit);
 docReady(sortableInit);
 docReady(flatpickrIntit);
+//# sourceMappingURL=theme.js.map

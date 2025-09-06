@@ -24,3 +24,4 @@ if (localStorage.getItem('theme') === 'dark') {
 } else if (localStorage.getItem('theme') === 'auto') {
   document.documentElement.setAttribute('data-bs-theme', window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 }
+//# sourceMappingURL=config.js.map
