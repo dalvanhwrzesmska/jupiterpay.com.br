@@ -105,7 +105,7 @@
                 <div class="card-body d-flex flex-column justify-content-end">
                     <div class="row justify-content-between">
                         <div class="col-auto align-self-end">
-                            <div class="fs-5 fw-normal font-sans-serif text-700 lh-1 mb-1">
+                            <div class="fs-5 fw-normal font-sans-serif text-700 lh-1 mb-1">R$ 
                                 {{ number_format((clone $solicitacoes)->where('status', 'PAID_OUT')->sum('amount') ?? 0, 2, ',', '.') }}
                             </div><span class="badge rounded-pill fs-11 bg-200 text-primary"><span
                                     class="fas fa-caret-up me-1"></span>0.0%</span>
@@ -160,7 +160,7 @@
                                 $countPaidOut = $paidOutSolicitacoes->count();
                                 $ticketMedio = $countPaidOut > 0 ? $paidOutSolicitacoes->sum('amount') / $countPaidOut : 0;
                             @endphp
-                            <p class="font-sans-serif lh-1 mb-1 fs-5 text-secondary">R$
+                            <p class="font-sans-serif lh-1 mb-4 fs-5 text-secondary">R$
                                 {{ number_format($ticketMedio, 2, ',', '.') }}</p>
                         </div>
                         <div class="col-auto ps-0">
