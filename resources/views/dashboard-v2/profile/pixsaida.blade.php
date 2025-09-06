@@ -61,7 +61,7 @@
                             $ticketMedio = $somaSaqueLiquido / $totalTransacoesFiltradas;
                         }
                     @endphp
-                    <h6 class="mb-1">MED</h6>
+                    <h6 class="mb-1">PENDENTE</h6>
                     <div class="display-4 fs-5 mb-2 fw-normal font-sans-serif">R$ {{ number_format($ticketMedio, 2, ',', '.') }}</div>
                     <span class="fw-semi-bold fs-10 text-nowrap">R$ 0,00</span>
                 </div>

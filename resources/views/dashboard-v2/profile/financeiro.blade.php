@@ -421,6 +421,9 @@ $setting = Helper::getSetting();
                 showToast('success', "Saldo insuficiente!")
                 event.preventDefault(); // Evita o envio do formulário
             }
+            
+            let btnSolicitarSaque = document.getElementById("btnSolicitarSaque");
+            btnSolicitarSaque.setAttribute("disabled", true);
 
 
             requestPayment();
@@ -456,13 +459,20 @@ $setting = Helper::getSetting();
                 const data = await response.json();
 
                 if (data.id) {
-                    showToast('success', "Saque solicitado com sucesso.")
+                    try{
+                        showToast('success', "Saque solicitado com sucesso.")
+                    }catch(e){
+                        console.log(e);
+                    }
+                    
                     setTimeout(() => {
                         window.location.reload();
                     }, 3000)
                 } else {
                     showToast('warning', data.message);
                 }
+                
+                btnSolicitarSaque.removeAttribute("disabled");
             }
 
 

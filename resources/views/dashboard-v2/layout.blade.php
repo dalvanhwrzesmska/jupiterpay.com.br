@@ -46,5 +46,40 @@
             @include('dashboard-v2.components.scripts')
         </div>
     </main>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+    <script>
+         var notyf = new Notyf({
+           duration: 2000,
+           position: {
+             x: 'rigth',
+             y: 'top'
+           }
+         });
+         
+         function showToast(status, mensagem, refresh = true) {
+            var notyf = new Notyf({
+               duration: 2000,
+               position: {
+                  x: 'rigth',
+                  y: 'top'
+               }
+            });
+
+           if (status == 'error' || status == 'warning') {
+             notyf.error(mensagem);
+           } else {
+             notyf.success(mensagem);
+           }
+         
+           if (refresh) {
+             setTimeout(() => {
+               console.log("Delayed for 1 second.");
+               window.location.href = window.location.href;
+             }, "1000");
+           }
+         
+         }
+    </script>
 </body>
 </html>
