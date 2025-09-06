@@ -28,8 +28,6 @@
 <style>
     .logo-website {
         background: url('https://i.imgur.com/VNInZj4.png');
-        width: 110px;
-        height: 45px;
         background-size: contain;
         background-repeat: no-repeat;
         background-position: center;
@@ -40,6 +38,12 @@
         background-size: contain!important;
         background-repeat: no-repeat!important;
         background-position: center!important;
+    }
+    @media screen and (max-width: 768px) {
+        .logo-website {
+            width: 110px!important;
+            height: 45px!important;
+        }
     }
 </style>
 <nav class="navbar navbar-light navbar-glass navbar-top navbar-expand">
