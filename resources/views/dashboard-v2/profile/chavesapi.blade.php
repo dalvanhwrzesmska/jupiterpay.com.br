@@ -226,7 +226,7 @@ body.dark #chavesapi-toast {
         <div class="chavesapi-modern-desc" style="text-align:center;">Utilize as chaves abaixo para integrar seu sistema ao PIX. Mantenha-as em segredo e nunca compartilhe publicamente.</div>
         <div class="chavesapi-modern-key-label">Token</div>
         <div class="chavesapi-modern-key-row">
-          <span id="token" class="chavesapi-modern-key-box">***********************</span>
+          <span id="token" class="chavesapi-modern-key-box">********************</span>
           <button class="chavesapi-modern-btn" id="btn-show-key-token" title="Mostrar/ocultar token" onclick="mostrarToken()">
             <span id="icon-eye-token"> 
               <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path d="M10 3C5 3 1.73 7.11 1.13 7.98a1 1 0 0 0 0 1.04C1.73 12.89 5 17 10 17s8.27-4.11 8.87-4.98a1 1 0 0 0 0-1.04C18.27 7.11 15 3 10 3zm0 12c-3.87 0-6.82-3.13-7.72-4C3.18 8.13 6.13 5 10 5s6.82 3.13 7.72 4c-.9.87-3.85 4-7.72 4zm0-7a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm0 4a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/></svg>
@@ -238,7 +238,7 @@ body.dark #chavesapi-toast {
         </div>
         <div class="chavesapi-modern-key-label">Secret</div>
         <div class="chavesapi-modern-key-row">
-          <span id="secret" class="chavesapi-modern-key-box">***********************</span>
+          <span id="secret" class="chavesapi-modern-key-box">********************</span>
           <button class="chavesapi-modern-btn" id="btn-show-key-secret" title="Mostrar/ocultar secret" onclick="mostrarSecret()">
             <span id="icon-eye-secret">
               <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path d="M10 3C5 3 1.73 7.11 1.13 7.98a1 1 0 0 0 0 1.04C1.73 12.89 5 17 10 17s8.27-4.11 8.87-4.98a1 1 0 0 0 0-1.04C18.27 7.11 15 3 10 3zm0 12c-3.87 0-6.82-3.13-7.72-4C3.18 8.13 6.13 5 10 5s6.82 3.13 7.72 4c-.9.87-3.85 4-7.72 4zm0-7a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm0 4a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/></svg>
@@ -293,22 +293,22 @@ body.dark #chavesapi-toast {
     function mostrarToken() {
       var token = document.getElementById("token");
       var btnCode = document.getElementById('btn-show-key-token');
-      if (token.innerText === "***********************") {
+      if (token.innerText === "********************") {
         token.innerText = '{{ $token }}';
         btnCode.innerHTML = `<i class="fa-solid fa-eye-slash"></i>`;
       } else {
-        token.innerText = '***********************';
+        token.innerText = '********************';
         btnCode.innerHTML = `<i class="fa-solid fa-eye"></i>`;
       }
     }
     function mostrarSecret() {
       var token = document.getElementById("secret");
       var btnCode = document.getElementById('btn-show-key-secret');
-      if (token.innerText === "***********************") {
+      if (token.innerText === "********************") {
         token.innerText = '{{ $secret }}';
         btnCode.innerHTML = `<i class="fa-solid fa-eye-slash"></i>`;
       } else {
-        token.innerText = '***********************';
+        token.innerText = '********************';
         btnCode.innerHTML = `<i class="fa-solid fa-eye"></i>`;
       }
     }

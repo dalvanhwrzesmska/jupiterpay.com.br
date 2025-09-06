@@ -7,6 +7,10 @@
     transition: all 0.2s ease-in-out;
 }
 
+[data-bs-theme="dark"] .custom-menu .nav-link {
+    color: #e2e6ef;
+}
+
 .custom-menu .nav-link:hover,
 .custom-menu .nav-link.active {
     background-color: #f1f1f1;
@@ -23,7 +27,7 @@
     'checkout'
 ])
 <div class="row align-items-start">
-    <div class="py-2 col-xxl-2 text-start" style="background: #F8F8F9;">
+    <div class="py-2 col-xxl-2 text-start">
         <ul class="px-2 py-3 nav flex-column custom-menu">
             <li class="mb-2 slide__category nav-separador-mobile text-uppercase fw-bold small text-muted ">
                 Cores

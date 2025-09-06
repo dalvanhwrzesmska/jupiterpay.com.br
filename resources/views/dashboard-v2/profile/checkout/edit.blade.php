@@ -907,6 +907,9 @@
             color: #2c3454;
             margin-bottom: 0.4rem;
         }
+        [data-bs-theme="dark"] .checkout-modern-clean-main #checkouts .form-label {
+            color: #bfc8e2;
+        }
         .checkout-modern-clean-main #checkouts .form-control,
         .checkout-modern-clean-main #checkouts .form-select {
             font-size: 1.07rem;
@@ -962,9 +965,8 @@
                 width: 100%;
             }
         }
-        @media (prefers-color-scheme: dark) {
+        @media (data-bs-theme="dark"){
             .checkout-modern-clean-main {
-                background: #181c24;
                 color: #e2e6ef;
             }
             .checkout-modern-clean-main .card,
@@ -972,9 +974,6 @@
                 background: #23272f;
                 border-color: #23272f !important;
                 color: #e2e6ef;
-            }
-            .checkout-modern-clean-main .container-fluid {
-                background: #181c24;
             }
             .checkout-modern-clean-main .nav-tabs {
                 background: #23272f;
@@ -1091,7 +1090,6 @@
         .dark .checkout-modern-clean-main,
         [data-bs-theme="dark"] .checkout-modern-clean-main,
         body.dark .checkout-modern-clean-main {
-            background: #181c24;
             color: #e2e6ef;
         }
         .dark .checkout-modern-clean-main .card,
@@ -1103,11 +1101,6 @@
             background: #23272f;
             border-color: #23272f !important;
             color: #e2e6ef;
-        }
-        .dark .checkout-modern-clean-main .container-fluid,
-        [data-bs-theme="dark"] .checkout-modern-clean-main .container-fluid,
-        body.dark .checkout-modern-clean-main .container-fluid {
-            background: #181c24;
         }
         .dark .checkout-modern-clean-main .nav-tabs,
         [data-bs-theme="dark"] .checkout-modern-clean-main .nav-tabs,
