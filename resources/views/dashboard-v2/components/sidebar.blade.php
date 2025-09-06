@@ -1,3 +1,51 @@
+@php
+    use App\Helpers\Helper;
+
+    $setting = Helper::getSetting();
+    $nivel = Helper::meuNivel(auth()->user());
+    $banido = auth()->user()->banido;
+    $status = auth()->user()->status;
+    $is_admin = auth()->user()->permission == 3;
+
+    $totalDepositos = $nivel['total_depositos'];
+    $min = $nivel['nivel_atual']?->minimo ?? 0;
+    $max = $nivel['nivel_atual']?->maximo ?? 0;
+
+    $porcentagem = 0;
+
+    if ($max > $min) {
+        $raw = (($totalDepositos - $min) / ($max - $min)) * 100;
+        $porcentagem = min(100, max(0, floor($raw * 100) / 100)); // Trunca para 2 casas sem arredondar
+    }
+@endphp
+<style>
+    :root {
+        --color-nivel-atual: {{ $nivel['nivel_atual']->cor }};
+        --color-proximo-nivel: {{ $nivel['proximo_nivel']->cor }};
+    }
+
+    .nivel-atual {
+        margin-top: 8px;
+        border: 1px solid var(--color-nivel-atual);
+        color: var(--color-nivel-atual);
+        border-radius: 5px;
+        font-size: 8px;
+        font-weight: 500;
+        padding-left: 3px;
+        padding-right: 3px;
+    }
+
+    .proximo-nivel {
+        margin-top: 8px;
+        border: 1px solid var(--color-proximo-nivel);
+        color: var(--color-proximo-nivel);
+        border-radius: 5px;
+        font-size: 8px;
+        font-weight: 500;
+        padding-left: 3px;
+        padding-right: 3px;
+    }
+</style>
 <nav class="navbar navbar-light navbar-vertical navbar-expand-xl">
     <script>
         var navbarStyle = localStorage.getItem("navbarStyle");
@@ -18,6 +66,7 @@
             </div>
         </a>
     </div>
+    
     <div class="collapse navbar-collapse" id="navbarVerticalCollapse">
         <div class="navbar-vertical-content scrollbar">
             <ul class="navbar-nav flex-column mb-3" id="navbarVerticalNav">
@@ -29,6 +78,9 @@
                         </div>
                     </a>
                 </li>
+
+                @if(isset($status) && isset($banido) && $status == 1 && $banido == 0)
+
                 <li class="nav-item">
                     <!-- label-->
                     <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
@@ -112,7 +164,8 @@
                         </li>
                     </ul>
                 </li>
-
+                
+                @if($is_admin)
                 <li class="nav-item">
                     <!-- label-->
                     <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
@@ -157,7 +210,11 @@
                         <li class="nav-item"><a class="nav-link" href="/administrador/ajustes/landing-page"><span class="nav-link-text ps-1">Landing Page</span></a></li>
                     </ul>
                 </li>
+                @endif
+                
+                @endif
             </ul>
+            @if(isset($status) && isset($banido) && $status == 1 && $banido == 0)
             <div class="settings my-3">
                 <div class="card shadow-none">
                     <div class="card-body alert mb-0" role="alert">
@@ -176,6 +233,7 @@
                     </div>
                 </div>
             </div>
+            @endif
         </div>
     </div>
 </nav>

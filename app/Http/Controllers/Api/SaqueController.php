@@ -6,13 +6,15 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Enums\PixKeyType;
 use App\Traits\CashtimeTrait;
+use App\Traits\PodPayTrait;
 use App\Models\User;
 use App\Models\App;
 use App\Helpers\Helper;
 
 class SaqueController extends Controller
 {
-    use CashtimeTrait;
+    //use CashtimeTrait;
+    use PodPayTrait;
 
     /**
      * @OA\Post(
@@ -85,7 +87,7 @@ class SaqueController extends Controller
                 'secret' =>    ['required', 'string'],
                 'amount' =>    ['required'],
                 'pixKey' => ['required', 'string'],
-                'pixKeyType' =>    ['required', 'string', 'in:cpf,email,telefone,aleatoria'],
+                'pixKeyType' =>    ['required', 'string', 'in:cpf,email,telefone,aleatoria,cnpj'],
                 'baasPostbackUrl' =>    ['required', 'string']
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -104,7 +106,7 @@ class SaqueController extends Controller
             ], 401);
         }
 
-        $response = self::requestPaymentCashtime($request);
+        $response = self::requestPaymentPodpay($request);
 
         // Se passar pela validação, processar o depósito
         return response()->json($response['data'], $response['status']);

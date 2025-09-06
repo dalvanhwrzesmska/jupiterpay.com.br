@@ -177,6 +177,7 @@ Route::get('checkout/produto/v2/{id}', [CheckoutControlller::class, 'v2'])->wher
 
 require __DIR__ . '/auth.php';
 require __DIR__ . '/groups/adquirentes/cashtime.php';
+require __DIR__ . '/groups/adquirentes/podpay.php';
 Route::get('/teste', function () {
     return view('test');
 });

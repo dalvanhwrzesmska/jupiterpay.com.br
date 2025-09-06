@@ -14,148 +14,174 @@ class RelatoriosControlller extends Controller
 {
     public function pixentrada(Request $request)
     {
-        $userId = Auth::user()->user_id;
-
-        $periodo = $request->input('periodo');
+        $userId   = Auth::user()->user_id;
+        $periodo  = trim((string)$request->input('periodo'));
+        $buscar   = trim((string)$request->input('buscar'));
+    
         $dataInicio = null;
-        $dataFim = null;
-
+        $dataFim    = null;
+    
         switch ($periodo) {
             case 'hoje':
-                $dataInicio = Carbon::today()->toDateString();
-                $dataFim = Carbon::today()->toDateString();
+                $dataInicio = now()->startOfDay();
+                $dataFim    = now()->endOfDay();
                 break;
-
             case 'ontem':
-                $dataInicio = Carbon::yesterday()->toDateString();
-                $dataFim = Carbon::yesterday()->toDateString();
+                $dataInicio = now()->subDay()->startOfDay();
+                $dataFim    = now()->subDay()->endOfDay();
                 break;
-
             case '7dias':
-                $dataInicio = Carbon::today()->subDays(6)->toDateString();
-                $dataFim = Carbon::today()->toDateString();
+                $dataInicio = now()->subDays(6)->startOfDay(); // últimos 7 dias incluindo hoje
+                $dataFim    = now()->endOfDay();
                 break;
-
             case '30dias':
-                $dataInicio = Carbon::today()->subDays(29)->toDateString();
-                $dataFim = Carbon::today()->toDateString();
+                $dataInicio = now()->subDays(29)->startOfDay(); // últimos 30 dias incluindo hoje
+                $dataFim    = now()->endOfDay();
                 break;
-
             case 'tudo':
-                // Sem filtro de data
+                // sem filtro de data
                 break;
-
             case 'personalizado':
-                $person = explode(':', $periodo);
-                $dataInicio = $person[0];
-                $dataFim = $person[1];
-                break;
-
+                // Se preferir mandar datas em inputs separados:
+                // $ini = $request->input('data_inicio');
+                // $fim = $request->input('data_fim');
+                // Aqui vou assumir que você manda periodo = "2025-09-01:2025-09-06"
             default:
-                if (Str::contains($periodo, ':')) {
-                    $person = explode(':', $periodo);
-                    $dataInicio = $person[0] ?? null;
-                    $dataFim = $person[1] ?? null;
-                } else {
-                    $dataInicio = Carbon::today()->toDateString();
-                    $dataFim = Carbon::today()->toDateString();
+                if (str_contains($periodo, ':')) {
+                    [$ini, $fim] = explode(':', $periodo) + [null, null];
+                    if ($ini && $fim) {
+                        // Como estamos usando Y-m-d, Carbon::parse resolve direto
+                        $dataInicio = \Carbon\Carbon::parse($ini)->startOfDay();
+                        $dataFim    = \Carbon\Carbon::parse($fim)->endOfDay();
+                    }
                 }
                 break;
         }
-
-        $buscar = $request->input('buscar');
-
-        $transactions = DB::table('solicitacoes')
-            ->where('user_id', $userId)
-            ->when($dataInicio && $dataFim, function ($query) use ($dataInicio, $dataFim) {
-                return $query->whereBetween('date', [$dataInicio, $dataFim]);
-            })
-            ->when($buscar, function ($query) use ($buscar) {
-                return $query->where(function ($q) use ($buscar) {
-                    $q->where('client_name', 'like', "%{$buscar}%")
-                        ->orWhere('idTransaction', 'like', "%{$buscar}%")
-                        ->orWhere('client_email', 'like', "%{$buscar}%")
-                        ->orWhere('client_document', 'like', "%{$buscar}%");
-                });
-            })
+    
+        $query = DB::table('solicitacoes')
+            ->where('user_id', $userId);
+    
+        if ($dataInicio && $dataFim) {
+            $query->whereBetween('date', [$dataInicio, $dataFim]);
+        }
+    
+        if ($buscar !== '') {
+            $like = "%{$buscar}%";
+            $query->where(function ($q) use ($like, $buscar) {
+                $q->where('client_name', 'like', $like)
+                  ->orWhere('idTransaction', 'like', $like)
+                  ->orWhere('client_email', 'like', $like)
+                  ->orWhere('client_document', 'like', $like);
+    
+                if (ctype_digit($buscar)) {
+                    $q->orWhere('idTransaction', (int)$buscar);
+                }
+            });
+        }
+    
+        $transactions = $query
             ->orderByDesc('date')
             ->get();
-
+    
         $ver = $request->segment(1);
-        $viewName = $ver === 'v2' ? 'dashboard-v2.profile.pixentrada' : 'profile.pixentrada';
+        $viewName = $ver === 'v2'
+            ? 'dashboard-v2.profile.pixentrada'
+            : 'profile.pixentrada';
+    
         return view($viewName, compact('transactions'));
     }
-
+    
     public function pixsaida(Request $request)
     {
-        $userId = Auth::user()->user_id;
-
-        $periodo = $request->input('periodo');
+        $userId  = Auth::user()->user_id;
+        $periodo = trim((string)$request->input('periodo'));
+        $buscar  = trim((string)$request->input('buscar'));
+    
         $dataInicio = null;
-        $dataFim = null;
-
+        $dataFim    = null;
+    
         switch ($periodo) {
             case 'hoje':
-                $dataInicio = Carbon::today()->toDateString();
-                $dataFim = Carbon::today()->toDateString();
+                $dataInicio = now()->startOfDay();
+                $dataFim    = now()->endOfDay();
                 break;
-
             case 'ontem':
-                $dataInicio = Carbon::yesterday()->toDateString();
-                $dataFim = Carbon::yesterday()->toDateString();
+                $dataInicio = now()->subDay()->startOfDay();
+                $dataFim    = now()->subDay()->endOfDay();
                 break;
-
             case '7dias':
-                $dataInicio = Carbon::today()->subDays(6)->toDateString();
-                $dataFim = Carbon::today()->toDateString();
+                $dataInicio = now()->subDays(6)->startOfDay(); // últimos 7 dias incluindo hoje
+                $dataFim    = now()->endOfDay();
                 break;
-
             case '30dias':
-                $dataInicio = Carbon::today()->subDays(29)->toDateString();
-                $dataFim = Carbon::today()->toDateString();
+                $dataInicio = now()->subDays(29)->startOfDay(); // últimos 30 dias incluindo hoje
+                $dataFim    = now()->endOfDay();
                 break;
-
             case 'tudo':
-                // Sem filtro de data
+                // sem filtro de data
                 break;
-
-            case 'personalizado':
-                $person = explode(':', $periodo);
-                $dataInicio = $person[0];
-                $dataFim = $person[1];
-                break;
-
             default:
-                if (Str::contains($periodo, ':')) {
-                    $person = explode(':', $periodo);
-                    $dataInicio = $person[0] ?? null;
-                    $dataFim = $person[1] ?? null;
-                } else {
-                    $dataInicio = Carbon::today()->toDateString();
-                    $dataFim = Carbon::today()->toDateString();
+                if (str_contains($periodo, ':')) {
+                    [$ini, $fim] = explode(':', $periodo) + [null, null];
+    
+                    // Se você só usa Y-m-d basta isso:
+                    $parse = function ($d) {
+                        if (!$d) return null;
+                        try { return \Carbon\Carbon::parse($d); } catch (\Throwable $e) { return null; }
+                    };
+    
+                    // (OPCIONAL) Para também aceitar dd/mm/YYYY, descomente:
+                    /*
+                    $parse = function ($d) {
+                        if (!$d) return null;
+                        $d = trim($d);
+                        try { return \Carbon\Carbon::createFromFormat('Y-m-d', $d); } catch (\Throwable $e) {}
+                        try { return \Carbon\Carbon::createFromFormat('d/m/Y', $d); } catch (\Throwable $e) {}
+                        try { return \Carbon\Carbon::parse($d); } catch (\Throwable $e) {}
+                        return null;
+                    };
+                    */
+    
+                    $cIni = $parse($ini);
+                    $cFim = $parse($fim);
+    
+                    if ($cIni && $cFim) {
+                        $dataInicio = $cIni->startOfDay();
+                        $dataFim    = $cFim->endOfDay();
+                    }
                 }
                 break;
         }
-
-        $buscar = $request->input('buscar');
-
-        $transactions = DB::table('solicitacoes_cash_out')
-            ->where('user_id', $userId)
-            ->when($dataInicio && $dataFim, function ($query) use ($dataInicio, $dataFim) {
-                return $query->whereBetween('date', [$dataInicio, $dataFim]);
-            })
-            ->when($buscar, function ($query) use ($buscar) {
-                return $query->where(function ($q) use ($buscar) {
-                    $q->where('beneficiaryname', 'like', "%{$buscar}%")
-                        ->orWhere('idTransaction', 'like', "%{$buscar}%")
-                        ->orWhere('beneficiarydocument', 'like', "%{$buscar}%");
-                });
-            })
+    
+        $query = DB::table('solicitacoes_cash_out')
+            ->where('user_id', $userId);
+    
+        if ($dataInicio && $dataFim) {
+            $query->whereBetween('date', [$dataInicio, $dataFim]);
+        }
+    
+        if ($buscar !== '') {
+            $like = "%{$buscar}%";
+            $query->where(function ($q) use ($like, $buscar) {
+                $q->where('beneficiaryname', 'like', $like)
+                  ->orWhere('idTransaction', 'like', $like)
+                  ->orWhere('beneficiarydocument', 'like', $like);
+    
+                if (ctype_digit($buscar)) {
+                    $q->orWhere('idTransaction', (int)$buscar);
+                }
+            });
+        }
+    
+        $transactions = $query
             ->orderByDesc('date')
             ->get();
-
+    
         $ver = $request->segment(1);
-        $viewName = $ver === 'v2' ? 'dashboard-v2.profile.pixsaida' : 'profile.pixsaida';
+        $viewName = $ver === 'v2'
+            ? 'dashboard-v2.profile.pixsaida'
+            : 'profile.pixsaida';
+    
         return view($viewName, compact('transactions'));
     }
 
