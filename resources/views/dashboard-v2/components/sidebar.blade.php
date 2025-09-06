@@ -60,9 +60,6 @@
         background-repeat: no-repeat!important;
         background-position: center!important;
     }
-    .logo-website::selection{
-        border: none!important;
-    }
 </style>
 <nav class="navbar navbar-light navbar-vertical navbar-expand-xl">
     <script>
@@ -168,19 +165,13 @@
                         </div>
                     </a>
                     <ul class="nav collapse" id="support-desk">
-                        <li class="nav-item"><a class="nav-link" href="app/support-desk/table-view.html">
-                                <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Table
-                                        view</span>
+                        <li class="nav-item"><a class="nav-link" href="https://t.me/freelacode" target="_blank">
+                                <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Telegram</span>
                                 </div>
                             </a>
                             <!-- more inner pages-->
                         </li>
-                        <li class="nav-item"><a class="nav-link" href="app/support-desk/reports.html">
-                                <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Reports</span>
-                                </div>
-                            </a>
-                            <!-- more inner pages-->
-                        </li>
+                       
                     </ul>
                 </li>
                 

@@ -205,7 +205,7 @@
         }
     </style>
     <div class="container-fluid px-0 py-4">
-        <h1 class="fw-bold text-dark mb-4 text-center">Assinatura de Planos</h1>
+        <h1 class="fw-bold text-dark mb-4 text-center">Assinatura de Planos (Em Breve)</h1>
         <div class="planos-cards-row">
             <div class="plano-card">
                 @if($activePlanSlug === 'basico')
