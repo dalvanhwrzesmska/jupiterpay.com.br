@@ -64,22 +64,10 @@ class CallbackController extends Controller
                 Helper::calculaSaldoLiquido($gerente->user_id);
             }
 
-
             $order = CheckoutOrders::where('idTransaction', $data['orderId'])->first();
             if ($order) {
                 $order->update(['status' => 'pago']);
-                if (!is_null($user->webhook_url) && in_array('pago', (array) $user->webhook_endpoint)) {
-                    Http::withHeaders(['Content-Type' => 'application/json', 'Accept' => 'application/json'])
-                        ->post($user->webhook_url, [
-                            'nome' => $order->name,
-                            'cpf' => preg_replace('/\D/', '', $order->cpf),
-                            'telefone' => preg_replace('/\D/', '', $order->telefone),
-                            'email' => $order->email,
-                            'status' => 'pago'
-                        ]);
-                }
             }
-
 
             if ($cashin->callback) {
                 $payload = [
@@ -112,16 +100,6 @@ class CallbackController extends Controller
                     $order = CheckoutOrders::where('idTransaction', $data['orderId'])->first();
                     if ($order) {
                         $order->update(['status' => 'pago']);
-                        if (!is_null($user->webhook_url) && in_array('pago', (array) $user->webhook_endpoint)) {
-                            Http::withHeaders(['Content-Type' => 'application/json', 'Accept' => 'application/json'])
-                                ->post($user->webhook_url, [
-                                    'nome' => $order->name,
-                                    'cpf' => preg_replace('/\D/', '', $order->cpf),
-                                    'telefone' => preg_replace('/\D/', '', $order->telefone),
-                                    'email' => $order->email,
-                                    'status' => 'pago'
-                                ]);
-                        }
                     }
                 }
             }

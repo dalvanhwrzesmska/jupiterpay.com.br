@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use App\Models\Solicitacoes;
+use App\Observers\WebhookObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -14,5 +16,7 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void {}
+    public function boot(): void {
+        Solicitacoes::observe(WebhookObserver::class);
+    }
 }
