@@ -80,7 +80,7 @@ class AuthenticatedSessionController extends Controller
         ]);
 
         $sessao = $request->session()->get('2fa:user:id');
-        $infoUser = User::select(['id', 'email', 'secret_2fa'])->where('id', $sessao)->first();
+        $infoUser = User::select(['id', 'email', 'secret_2fa', 'enabled_2fa'])->where('id', $sessao)->first();
 
         if(!isset($infoUser->secret_2fa) || $infoUser->secret_2fa == null) {
             return back()->with('error', 'Usuário não possui 2FA configurado.');
@@ -90,6 +90,10 @@ class AuthenticatedSessionController extends Controller
         $valid = $google2fa->checkCode($infoUser->secret_2fa, $request->input('2fa_code'));
 
         if ($valid) {
+            if($infoUser->enabled_2fa == 0){
+                $infoUser->update(['enabled_2fa' => 1]);
+            }
+
             Auth::loginUsingId($infoUser->id, $request->session()->get('2fa:remember', false));
             $request->session()->forget(['2fa:user:id', '2fa:remember']);
             $request->session()->regenerate();
