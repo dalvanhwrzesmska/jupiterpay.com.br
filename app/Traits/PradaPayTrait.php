@@ -207,6 +207,9 @@ trait PradaPayTrait
             }
 
             $nomeCompleto = explode(' ', $request->user->name, 2);
+            if (count($nomeCompleto) < 2) {
+                $nomeCompleto[1] = '';
+            }
 
             $payload = [
                 "amount"            => $request->amount,
