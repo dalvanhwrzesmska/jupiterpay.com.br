@@ -270,7 +270,7 @@ $setting = Helper::getSetting();
                       </div>
 
                       <div class="mt-4 mb-0 form-group d-flex align-items-center justify-content-between">
-                          <a class="small fw-500 text-decoration-none" href="/register">Sair da conta</a>
+                          <a class="small fw-500 text-decoration-none" href="/login">Sair da conta</a>
                           <button type="submit" class="btn btn-primary" >Acessar</button>
                       </div>
                   </form>
