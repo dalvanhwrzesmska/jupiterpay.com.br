@@ -8,7 +8,7 @@
             <p class="text-muted mb-0">Acompanhe suas entradas PIX e visualize os detalhes das transações recebidas.</p>
         </div>
         <div class="col-12 col-lg-4">
-            <form class="d-flex gap-2 align-items-center justify-content-end" method="GET" action="{{ route('profile.relatorio.pixentrada') }}" id="filtroForm">
+            <form class="d-flex gap-2 align-items-center justify-content-end" method="GET" action="{{ route('profile.relatorio.pixentrada.v2') }}" id="filtroForm">
                 <input class="form-control form-control-sm rounded-pill px-3 w-auto" type="search" placeholder="Buscar por nome, email ou documento" aria-label="Buscar" name="buscar" value="{{ request('buscar') }}" style="max-width:180px;">
                 <select class="form-select form-select-sm rounded-pill px-3 w-auto" id="periodoSelect" name="periodo" required style="max-width:140px;">
                     <option value="hoje" {{ request('periodo') == 'hoje' ? 'selected' : '' }}>Hoje</option>
