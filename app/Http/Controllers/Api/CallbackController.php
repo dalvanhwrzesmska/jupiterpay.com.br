@@ -112,15 +112,17 @@ class CallbackController extends Controller
 
         \Log::debug("[PIX-OUT] Received Callback: " . json_encode($data));
 
-        if ($data['withdrawStatusId'] == "Successfull" || $data['status'] == "pago") {
-
+        if (
+            (isset($data['withdrawStatusId']) && $data['withdrawStatusId'] == "Successfull") || 
+            (isset($data['status']) && $data['status'] == "pago")
+        ) {
             $id = null;
-            if(isset($data['status']) && $data['status'] == "pago" && isset($data['idTransaction'])){
+            if (isset($data['status']) && $data['status'] == "pago" && isset($data['idTransaction'])) {
                 $id = $data['idTransaction'];
                 $data['updatedAt'] = Carbon::now();
             }
 
-            if(empty($id) && isset($data['withdrawStatusId'])){
+            if (empty($id) && isset($data['withdrawStatusId'])) {
                 $id = $data['id'];
             }
 
@@ -160,6 +162,59 @@ class CallbackController extends Controller
                     ])->post($cashout->callback, $payload);
 
                     return response()->json(['status' => 'paid']);
+                }
+            }
+        }
+
+        if (isset($data['status']) && $data['status'] == "refunded") {
+
+            $id = null;
+            if (isset($data['status']) && $data['status'] == "refunded" && isset($data['idTransaction'])) {
+                $id = $data['idTransaction'];
+                $data['updatedAt'] = Carbon::now();
+            }
+
+            if (empty($id) && isset($data['withdrawStatusId'])) {
+                $id = $data['id'];
+            }
+
+            $cashout = SolicitacoesCashOut::where('idTransaction', $id)->first();
+
+            if(!$cashout){
+                return response()->json(['status' => false]);
+            }
+
+            $cashout->update(['status' => 'CANCELLED', 'updated_at' => $data['updatedAt']]);
+            $user = User::where('user_id', $cashout->user_id)->first();
+
+            Helper::incrementAmount($user, $cashout->amount, 'saldo');
+
+            if ($cashout->callback) {
+                $payload = [
+                    "status"            => "cancelled",
+                    "idTransaction"     => $cashout->idTransaction,
+                    "typeTransaction"   => "PAYMENT"
+                ];
+
+                $sendcallback = Http::withHeaders([
+                    'Content-Type' => 'application/json',
+                    'accept' => 'application/json'
+                ])->post($cashout->callback, $payload);
+
+                \Log::debug("[PIX-OUT] Send Callback: Para $cashout->callback -> Enviando...");
+                if ($cashout->callback && $cashout->callback != 'web') {
+                    $payload = [
+                        "status"            => "cancelled",
+                        "idTransaction"     => $cashout->idTransaction,
+                        "typeTransaction"   => "PAYMENT"
+                    ];
+
+                    Http::withHeaders([
+                        'Content-Type' => 'application/json',
+                        'accept' => 'application/json'
+                    ])->post($cashout->callback, $payload);
+
+                    return response()->json(['status' => 'cancelled']);
                 }
             }
         }
