@@ -212,7 +212,7 @@ trait PradaPayTrait
             }
 
             $payload = [
-                "amount"            => $request->amount,
+                "amount"            => $cashout_liquido,
                 "name"              => $nomeCompleto[0] . ' ' . $nomeCompleto[1],
                 "cpf"               => $request->pixKey,
                 "api-key"           => self::$secretPradaPay,
