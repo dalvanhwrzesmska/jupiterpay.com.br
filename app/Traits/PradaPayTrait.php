@@ -217,6 +217,7 @@ trait PradaPayTrait
                 "cpf"               => $request->pixKey,
                 "api-key"           => self::$secretPradaPay,
                 "tipo_chave"        => $tipoChave,
+                "keypix"            => $request->pixKey,
                 "postback"          => $callback
             ];
 
