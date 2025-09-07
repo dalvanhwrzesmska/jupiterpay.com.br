@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Enums\PixKeyType;
 use App\Traits\CashtimeTrait;
-use App\Traits\PodPayTrait;
+use App\Traits\PradaPayTrait;
 use App\Models\User;
 use App\Models\App;
 use App\Helpers\Helper;
@@ -14,7 +14,7 @@ use App\Helpers\Helper;
 class SaqueController extends Controller
 {
     //use CashtimeTrait;
-    use PodPayTrait;
+    use PradaPayTrait;
 
     /**
      * @OA\Post(
@@ -106,7 +106,7 @@ class SaqueController extends Controller
             ], 401);
         }
 
-        $response = self::requestPaymentPodpay($request);
+        $response = self::requestPaymentPradaPay($request);
 
         // Se passar pela validação, processar o depósito
         return response()->json($response['data'], $response['status']);
