@@ -16,7 +16,7 @@ use App\Helpers\Helper;
 
 trait PradaPayTrait
 {
-    protected static string $secret;
+    protected static string $secretPradaPay;
     protected static string $urlCashIn;
     protected static string $urlCashOut;
     protected static string $taxaCashIn;
@@ -30,7 +30,7 @@ trait PradaPayTrait
             return false;
         }
 
-        self::$secret = $setting->secret;
+        self::$secretPradaPay = 'c5cf2f30424de1325e90545c';
         self::$urlCashIn = 'https://api.pradapay.com/v1/gateway/';
         self::$urlCashOut = 'https://api.pradapay.com/c1/cashout/';
         self::$taxaCashIn = $setting->taxa_pix_cash_in;
@@ -50,7 +50,7 @@ trait PradaPayTrait
             $payload = [
                 "requestNumber" => "12356",
                 "postback"      => url("pradapay/callback/deposit"),
-                "api-key"       => 'c5cf2f30424de1325e90545c',
+                "api-key"       => self::$secretPradaPay,
                 "client"        => [
                     "name"      => $data->debtor_name,
                     "email"     => $data->email,
@@ -186,27 +186,48 @@ trait PradaPayTrait
         if (self::generateCredentialsPradaPay()) {
             $callback = url("pradapay/callback/withdraw");
             $client_ip = $request->ip();
+            $tipoChave = 'DOCUMENT';
+
+            switch ($request->pixKeyType) {
+                case 'cpf':
+                    $tipoChave = 'DOCUMENT';
+                    break;
+                case 'cnpj':
+                    $tipoChave = 'CNPJ';
+                    break;
+                case 'phone':
+                    $tipoChave = 'PHONE';
+                    break;
+                case 'email':
+                    $tipoChave = 'EMAIL';
+                    break;
+                case 'random':
+                    $tipoChave = 'EVP';
+                    break;
+            }
+
+            $nomeCompleto = explode(' ', $request->user->name, 2);
 
             $payload = [
-                "amount"            => floatval($request->amount * 100),
-                "pixKey"            => $request->pixKey,
-                "pixKeyType"        => $request->pixKeyType,
-                "baasPostbackUrl"   => $callback
+                "amount"            => $request->amount,
+                "name"              => $nomeCompleto[0] . ' ' . $nomeCompleto[1],
+                "cpf"               => $request->pixKey,
+                "api-key"           => self::$secretPradaPay,
+                "tipo_chave"        => $tipoChave,
+                "postback"          => $callback
             ];
 
 
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
-                'Accept' => 'application/json',
-                'x-authorization-key' => self::$secret,
+                'Accept' => 'application/json'
             ])->post(self::$urlCashOut, $payload);
 
 
             if ($response->successful()) {
                 //Helper::incrementAmount($user, $request->amount, 'valor_saque_pendente');
                 //Helper::decrementAmount($user, $cashout_liquido, 'saldo');
-
-                $name = "Cliente de " . explode(' ', $request->user->name)[0] . ' ' . explode(' ', $request->user->name)[1];
+                $name = "Cliente de " . $nomeCompleto[0] . ' ' . $nomeCompleto[1];
                 $responseData = $response->json();
 
                 $pixKey = $request->pixKey;
@@ -218,7 +239,6 @@ trait PradaPayTrait
                         $pixKey = preg_replace('/[^0-9]/', '', $pixKey);
                         break;
                 }
-
 
                 $pixcashout = [
                     "user_id"               => $request->user->username,
