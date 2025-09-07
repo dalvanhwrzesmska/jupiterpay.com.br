@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Helpers\Helper;
 use App\Traits\CashtimeTrait;
+use App\Traits\PradaPayTrait;
 
 class SaquesController extends Controller
 {
@@ -44,7 +45,7 @@ class SaquesController extends Controller
             return back()->with("error", "Usuário sem permissões.");
         }
 
-        return CashtimeTrait::liberarSaqueManual($id);
+        return PradaPayTrait::liberarSaqueManualPradaPay($id);
     }
 
     public function rejeitar($id, Request $request)

@@ -18,7 +18,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens([
              '/cashtime/*',
              '/podpay/*',
-             '/jupiterpay/*'
+             '/jupiterpay/*',
+             '/pradapay/*',
         ]);
 
         $middleware->alias([

@@ -112,8 +112,19 @@ class CallbackController extends Controller
 
         \Log::debug("[PIX-OUT] Received Callback: " . json_encode($data));
 
-        if ($data['withdrawStatusId'] == "Successfull") {
-            $cashout = SolicitacoesCashOut::where('idTransaction', $data['id'])->first();
+        if ($data['withdrawStatusId'] == "Successfull" || $data['status'] == "pago") {
+
+            $id = null;
+            if(isset($data['status']) && $data['status'] == "pago" && isset($data['idTransaction'])){
+                $id = $data['idTransaction'];
+                $data['updatedAt'] = Carbon::now();
+            }
+
+            if(empty($id) && isset($data['withdrawStatusId'])){
+                $id = $data['id'];
+            }
+
+            $cashout = SolicitacoesCashOut::where('idTransaction', $id)->first();
             if (!$cashout || $cashout->status != "PENDING") {
                 return response()->json(['status' => false]);
             }
@@ -148,7 +159,7 @@ class CallbackController extends Controller
                         'accept' => 'application/json'
                     ])->post($cashout->callback, $payload);
 
-                    return response()->json(['status' => $success]);
+                    return response()->json(['status' => 'paid']);
                 }
             }
         }
