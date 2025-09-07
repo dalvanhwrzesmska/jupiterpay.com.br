@@ -11,6 +11,7 @@ class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
+    public const STATUS_ACTIVE = 1;
 
     /**
      * The attributes that are mass assignable.
@@ -89,7 +90,9 @@ class User extends Authenticatable
         "taxa_boleto_fixa",
         "taxa_boleto_percentual",
         "taxa_checkout_fixa",
-        "taxa_checkout_porcentagem"
+        "taxa_checkout_porcentagem",
+        "enabled_2fa",
+        "secret_2fa"
     ];
 
     /**

@@ -12,6 +12,12 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
+    Route::get('2fa', [AuthenticatedSessionController::class, 'show2fa'])
+        ->name('2fa.index');
+
+    Route::post('2fa/check', [AuthenticatedSessionController::class, 'check2fa'])
+        ->name('2fa.check');
+
     Route::get('register', [RegisteredUserController::class, 'create'])
         ->name('register');
 
