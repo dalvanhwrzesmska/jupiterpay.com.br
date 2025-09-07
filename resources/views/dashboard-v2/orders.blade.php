@@ -22,9 +22,6 @@
                         </div>
                     </div>
                     <div id="orders-actions">
-                        <button class="btn btn-falcon-default btn-sm" type="button"><span class="fas fa-plus"
-                                data-fa-transform="shrink-3 down-2"></span><span
-                                class="d-none d-sm-inline-block ms-1">Novo</span></button>
                         <button class="btn btn-falcon-default btn-sm mx-2" type="button"><span class="fas fa-filter"
                                 data-fa-transform="shrink-3 down-2"></span><span
                                 class="d-none d-sm-inline-block ms-1">Filtrar</span></button>
@@ -67,13 +64,13 @@
                             </td>
                             <td class="order py-2 align-middle white-space-nowrap">
                                 <a href="#"><strong>#{{ $order->id }}</strong></a> por
-                                <strong>{{ $order->name }}</strong><br />
+                                <strong class="text-muted">{{ $order->name }}</strong><br />
                                 <a href="mailto:{{ $order->email }}">{{ $order->email }}</a>
                             </td>
-                            <td class="date py-2 align-middle">{{ \Carbon\Carbon::parse($order->created_at)->format('d/m/Y') }}</td>
+                            <td class="date py-2 align-middle text-muted">{{ \Carbon\Carbon::parse($order->created_at)->format('d/m/Y') }}</td>
                             <td class="address py-2 align-middle white-space-nowrap">
                                 {{ $order->endereco ?? '-' }}
-                                <p class="mb-0 text-500">{{ $order->checkout->produto_name ?? $order->checkout_name }}</p>
+                                <p class="mb-0 text-500 text-muted">{{ $order->checkout->produto_name ?? $order->checkout_name }}</p>
                             </td>
                             <td class="status py-2 align-middle text-center fs-9 white-space-nowrap">
                                 @if ($order->status == 'pago')
@@ -88,7 +85,7 @@
                                     <span class="badge badge rounded-pill d-block badge-subtle-secondary">{{ ucfirst($order->status) }}</span>
                                 @endif
                             </td>
-                            <td class="amount py-2 align-middle text-end fs-9 fw-medium">R$ {{ number_format($order->valor_total, 2, ',', '.') }}</td>
+                            <td class="amount py-2 align-middle text-end text-muted fs-9 fw-medium">R$ {{ number_format($order->valor_total, 2, ',', '.') }}</td>
                             <td class="py-2 align-middle white-space-nowrap text-end">
                                 <div class="dropdown font-sans-serif position-static">
                                     <button class="btn btn-link text-600 btn-sm dropdown-toggle btn-reveal" type="button"

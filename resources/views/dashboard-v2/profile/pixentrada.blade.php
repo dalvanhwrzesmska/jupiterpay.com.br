@@ -4,7 +4,7 @@
 <div class="container-fluid px-0">
     <div class="row align-items-center mb-4 gy-2 gx-3 px-2">
         <div class="col-12 col-lg-8 mb-2 mb-lg-0">
-            <h2 class="fw-bold text-dark mb-0">Entradas PIX</h2>
+            <h2 class="fw-bold text-muted mb-0">Entradas PIX</h2>
             <p class="text-muted mb-0">Acompanhe suas entradas PIX e visualize os detalhes das transações recebidas.</p>
         </div>
         <div class="col-12 col-lg-4">
@@ -68,26 +68,26 @@
                 <table class="table table-hover table-striped overflow-hidden mb-0">
                     <thead>
                         <tr>
-                            <th>Transação ID</th>
-                            <th>Valor</th>
-                            <th>Valor Líquido</th>
-                            <th>Nome</th>
-                            <th>Email</th>
-                            <th>Documento</th>
-                            <th>Status</th>
-                            <th>Data</th>
-                            <th>Taxa</th>
+                            <th class="text-muted">Transação ID</th>
+                            <th class="text-muted">Valor</th>
+                            <th class="text-muted">Valor Líquido</th>
+                            <th class="text-muted">Nome</th>
+                            <th class="text-muted">Email</th>
+                            <th class="text-muted">Documento</th>
+                            <th class="text-muted">Status</th>
+                            <th class="text-muted">Data</th>
+                            <th class="text-muted">Taxa</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($transactions as $transaction)
                         <tr>
-                            <td>{{ $transaction->idTransaction }}</td>
-                            <td>{{ 'R$ '.number_format($transaction->amount, 2, ',', '.') }}</td>
-                            <td>{{ 'R$ '.number_format($transaction->deposito_liquido, 2, ',', '.') }}</td>
-                            <td>{{ $transaction->client_name }}</td>
-                            <td>{{ $transaction->client_email }}</td>
-                            <td>{{ $transaction->client_document }}</td>
+                            <td class="text-muted">{{ $transaction->idTransaction }}</td>
+                            <td class="text-muted">{{ 'R$ '.number_format($transaction->amount, 2, ',', '.') }}</td>
+                            <td class="text-muted">{{ 'R$ '.number_format($transaction->deposito_liquido, 2, ',', '.') }}</td>
+                            <td class="text-muted">{{ $transaction->client_name }}</td>
+                            <td class="text-muted">{{ $transaction->client_email }}</td>
+                            <td class="text-muted">{{ $transaction->client_document }}</td>
                             <td>
                                 @switch($transaction->status)
                                     @case('PAID_OUT')

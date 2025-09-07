@@ -4,7 +4,7 @@
 <div class="container-fluid px-0">
     <div class="row align-items-center mb-4 gy-2 gx-3 px-2">
         <div class="col-12 col-lg-8 mb-2 mb-lg-0">
-            <h2 class="fw-bold text-dark mb-0">Saídas PIX</h2>
+            <h2 class="fw-bold text-muted mb-0">Saídas PIX</h2>
             <p class="text-muted mb-0">Acompanhe suas saídas PIX e visualize os detalhes das transações realizadas.</p>
         </div>
         <div class="col-12 col-lg-4">
@@ -77,26 +77,26 @@
                 <table class="table table-hover table-striped overflow-hidden mb-0">
                     <thead>
                         <tr>
-                            <th>Transação ID</th>
-                            <th>Valor</th>
-                            <th>Valor Líquido</th>
-                            <th>Nome</th>
-                            <th>Chave PIX</th>
-                            <th>Tipo Chave</th>
-                            <th>Status</th>
-                            <th>Data</th>
-                            <th>Taxa</th>
+                            <th class="text-muted">Transação ID</th>
+                            <th class="text-muted">Valor</th>
+                            <th class="text-muted">Valor Líquido</th>
+                            <th class="text-muted">Nome</th>
+                            <th class="text-muted">Chave PIX</th>
+                            <th class="text-muted">Tipo Chave</th>
+                            <th class="text-muted">Status</th>
+                            <th class="text-muted">Data</th>
+                            <th class="text-muted">Taxa</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($transactions as $transaction)
                         <tr>
-                            <td>{{ $transaction->idTransaction }}</td>
-                            <td>{{ 'R$ '.number_format($transaction->amount, 2, ',', '.') }}</td>
-                            <td>{{ 'R$ '.number_format($transaction->cash_out_liquido, 2, ',', '.') }}</td>
-                            <td>{{ $transaction->beneficiaryname }}</td>
-                            <td>{{ $transaction->pix }}</td>
-                            <td>{{ $transaction->pixkey }}</td>
+                            <td class="text-muted">{{ $transaction->idTransaction }}</td>
+                            <td class="text-muted">{{ 'R$ '.number_format($transaction->amount, 2, ',', '.') }}</td>
+                            <td class="text-muted">{{ 'R$ '.number_format($transaction->cash_out_liquido, 2, ',', '.') }}</td>
+                            <td class="text-muted">{{ $transaction->beneficiaryname }}</td>
+                            <td class="text-muted">{{ $transaction->pix }}</td>
+                            <td class="text-muted">{{ $transaction->pixkey }}</td>
                             <td>
                                 @switch($transaction->status)
                                     @case('COMPLETED')
