@@ -20,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
              '/podpay/*',
              '/jupiterpay/*',
              '/pradapay/*',
+             '/interbanking/*',
         ]);
 
         $middleware->alias([
