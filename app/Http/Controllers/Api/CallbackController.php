@@ -233,6 +233,87 @@ class CallbackController extends Controller
 
         $tipoMovimento = $data['tipoMovimentacao'] ?? null;
         if(!$tipoMovimento) {
+            if (isset($data['txid'])) {
+                $data['orderId'] = $data['txid'];
+
+                if(empty($data['orderId']))
+                {
+                    Log::error("[PIX-IN] Callback sem orderId ou idTransaction");
+                    return response()->json(['status' => false]);
+                }
+
+                $cashin = Solicitacoes::where('idTransaction', $data['orderId'])->first();
+                if (!$cashin || $cashin->status != "WAITING_FOR_APPROVAL") {
+                    return response()->json(['status' => false]);
+                }
+
+                $updated_at = Carbon::now();
+                $cashin->update(['status' => 'PAID_OUT', 'updated_at' => $updated_at]);
+
+                $user = User::where('user_id', $cashin->user_id)->first();
+                Helper::incrementAmount($user, $cashin->deposito_liquido, 'saldo');
+                Helper::calculaSaldoLiquido($user->user_id);
+
+                $gerente = User::where('id', $user->gerente_id)->first();
+
+                if ($gerente && isset($user->gerente_id) && !is_null($user->gerente_id) && isset($gerente->gerente_percentage) && $gerente->gerente_percentage > 0) {
+                    $gerente_porcentagem = $gerente->gerente_percentage;
+                    $valor = (float) $cashin->taxa_cash_in * (float) $gerente_porcentagem / 100;
+
+                    Transactions::create([
+                        'user_id' => $user->user_id,
+                        'gerente_id' => $user->gerente_id,
+                        'solicitacao_id' => $cashin->id,
+                        'comission_value' => $valor,
+                        'transaction_percent' => $cashin->taxa_cash_in,
+                        'comission_percent' => $gerente_porcentagem,
+                    ]);
+
+
+                    Helper::calculaSaldoLiquido($gerente->user_id);
+                }
+
+                $order = CheckoutOrders::where('idTransaction', $data['orderId'])->first();
+                if ($order) {
+                    $order->update(['status' => 'pago']);
+                }
+
+                if ($cashin->callback) {
+                    $payload = [
+                        "status"            => "paid",
+                        "idTransaction"     => $cashin->idTransaction,
+                        "typeTransaction"   => "PIX"
+                    ];
+
+                    Http::withHeaders([
+                        'Content-Type' => 'application/json',
+                        'accept' => 'application/json'
+                    ])->post($cashin->callback, $payload);
+
+                    \Log::debug("[PIX-IN] Send Callback: Para $cashin->callback -> Enviando...");
+                    if ($cashin->callback && $cashin->callback != 'web') {
+                        $payload = [
+                            "status"            => "paid",
+                            "idTransaction"     => $cashin->idTransaction,
+                            "typeTransaction"   => "PIX"
+                        ];
+
+                        Http::withHeaders([
+                            'Content-Type' => 'application/json',
+                            'accept' => 'application/json'
+                        ])->post($cashin->callback, $payload);
+                    } else {
+                        $order = CheckoutOrders::where('idTransaction', $data['orderId'])->first();
+                        if ($order) {
+                            $order->update(['status' => 'pago']);
+                        }
+                    }
+                }
+
+                $success = 'paid';
+                return response()->json(['status' => $success]);
+            }
+
             return response()->json(['status'=> 'error', 'message' => 'Tipo de movimentação não especificada.']);
         }
 
