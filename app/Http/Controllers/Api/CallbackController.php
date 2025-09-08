@@ -329,7 +329,7 @@ class CallbackController extends Controller
             }
 
             $cashout = SolicitacoesCashOut::where('idTransaction', $id)->first();
-            if (!$cashout || $cashout->status != "PENDING") {
+            if (!$cashout) {
                 return response()->json(['status' => false]);
             }
 
@@ -339,7 +339,9 @@ class CallbackController extends Controller
             switch ($status) {
                 case 'REPROVADO':
                     $cashout->update(['status' => 'CANCELLED', 'updated_at' => Carbon::now()]);
-                    Helper::incrementAmount($user, $cashout->amount, 'saldo');
+                    if($cashout->status == 'COMPLETED'){
+                        Helper::incrementAmount($user, $cashout->amount, 'saldo');
+                    }
                     break;
                 case 'EFETIVADO':
                     $cashout->update(['status' => 'COMPLETED', 'updated_at' => Carbon::now()]);
