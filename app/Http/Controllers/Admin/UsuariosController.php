@@ -110,6 +110,8 @@ class UsuariosController extends Controller
             return redirect()->back()->with('error', "Selecione um usuário!");
         }
 
+        $dataFull = $request->all();
+
         $email = $request->input('email');
         $name = $request->input('name');
         $permission = $request->input('permission');
@@ -163,17 +165,22 @@ class UsuariosController extends Controller
         $taxa_cartao_11x = $request->input('taxa_cartao_parcela[11]') ?? null;
         $taxa_cartao_12x = $request->input('taxa_cartao_parcela[12]') ?? null;
 
-        $taxa_boleto_fixo = $request->input('taxa_boleto_fixa') ?? null;
-        $taxa_boleto_percentual = $request->input('taxa_boleto_percentual') ?? null;
+        for ($i = 0; $i < 13; $i++) {
+            $campo = 'taxa_cartao_' . $i . 'x';
+            if (isset($$campo) && !empty($$campo)) {
+                $payl[$campo] = $$campo;
+            }
+        }
 
-        $taxa_checkout_fixa = $request->input('taxa_produto_checkout_fixa') ?? null;
-        $taxa_checkout_porcentagem = $request->input('taxa_produto_checkout_percentual') ?? null;
+        $items = [
+            'email', 'name', 'permission', 'cpf_cnpj', 'data_nascimento', 'telefone', 'gateway_cashin', 'gateway_cashout', 
+            'taxa_produto_checkout_fixa', 'taxa_produto_checkout_percentual', 'taxa_cash_out', 'taxa_boleto_fixa', 'taxa_boleto_percentual', 'taxa_checkout_fixa', 'taxa_checkout_porcentagem',
+            'taxa_cash_in_fixa', 'taxa_cash_out_fixa', 'tax_method', 'taxa_cash_in', 'taxa_percentual'
+        ];
 
-        $items = ['email', 'name', 'permission', 'cpf_cnpj', 'data_nascimento', 'telefone', 'gateway_cashin', 'gateway_cashout', 'taxa_cartao_1x', 'taxa_cartao_2x', 'taxa_cartao_3x', 'taxa_cartao_4x', 'taxa_cartao_5x', 'taxa_cartao_6x', 'taxa_cartao_7x', 'taxa_cartao_8x', 'taxa_cartao_9x', 'taxa_cartao_10x', 'taxa_cartao_11x', 'taxa_cartao_12x', 'taxa_boleto_fixo', 'taxa_boleto_percentual', 'taxa_checkout_fixa', 'taxa_checkout_porcentagem'];
-    
         foreach ($items as $item) {
-            if (!empty($$item)) {
-                $payl[$item] = $$item;
+            if (isset($dataFull[$item]) && !empty($dataFull[$item])) {
+                $payl[$item] = $request->input($item) ?? null;
             }
         }
 
@@ -208,6 +215,8 @@ class UsuariosController extends Controller
         }
 
         $payl['gerente_aprovar'] = $request->has('gerente_aprovar');
+
+        //dd($payl);
 
         User::where('id', $id)->update($payl);
 

@@ -127,7 +127,11 @@ class DepositController extends Controller
         }
 
         // Se passar pela validação, processar o depósito
-        return response()->json($response['data'], $response['status']);
+        if(isset($response['data']) && isset($response['status'])) {
+            return response()->json($response['data'], $response['status']);
+        }
+
+        return response()->json(['status' => 'error', 'message' => 'Erro ao processar depósito.'], 400);
     }
 
     public function statusDeposito(Request $request)

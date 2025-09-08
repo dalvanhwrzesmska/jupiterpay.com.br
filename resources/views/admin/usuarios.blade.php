@@ -127,6 +127,8 @@ function formatarCpfOuCnpj($valor)
                                                         ->sum('deposito_liquido');
                                                 @endphp
                                                 <h2 class="font-bold card-title">R$ {{ number_format($ultimos7Dias, 2, ',', '.') }}</h2>
+                                                <p class="card-text">Saldo em Conta</p>
+                                                <h2 class="font-bold card-title">R$ {{ number_format($user->saldo, 2, ',', '.') }}</h2>
                                             </div>
                                             <div class="dropdown" style="position: absolute;top: 20px;right:20px">
                                                 <button class="icon-navbar btn btn-sm btn-icon dropdown-toggle "

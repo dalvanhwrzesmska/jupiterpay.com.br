@@ -1,9 +1,3 @@
-@php
-use App\Helpers\Helper;
-Helper::calculaSaldoLiquido(auth()->user()->user_id);
-$setting = Helper::getSetting();
-@endphp
-
 @extends('dashboard-v2.layout')
 
 @section('content')
@@ -117,7 +111,7 @@ $setting = Helper::getSetting();
                             <!-- Explicação sobre taxas padrão -->
                             <div class="m-3 alert alert-info">
                                 <ul>
-                                    <li><strong>Taxa de depósito:</strong> {{ $setting->taxa_cash_in_padrao."%" }} {{ $setting->taxa_fixa_padrao > 0 ? '+ R$ '.number_format($setting->taxa_fixa_padrao, '2', ',', '.') : '' }}</li>
+                                    <li><strong>Taxa de depósito:</strong> {{ number_format($taxas['taxa_cash_in'], 2, '.', '') }}% + {{ 'R$ '.number_format($taxas['taxa_cash_in_fixa'], 2, ',', '.') }}</li>
                                     <li><strong>Limite Pessoa física:</strong> Sem limite</li>
                                     <li><strong>Limite Pessoa jurídica:</strong> Sem limite</li>
                                 </ul>
@@ -220,7 +214,7 @@ $setting = Helper::getSetting();
                             <!-- Explicação sobre taxas padrão -->
                             <div class="m-3 alert alert-info">
                                 <ul>
-                                    <li><strong>Taxa de saque:</strong> {{ $setting->taxa_cash_out_padrao."%" }} {{ $setting->taxa_fixa_padrao_cashout > 0 ? '+ R$ '.number_format($setting->taxa_fixa_padrao_cashout, '2', ',', '.') : '' }}</li>
+                                    <li><strong>Taxa de saque:</strong> {{ number_format($taxas['taxa_cash_out'], 2, '.', '') }}% + {{ 'R$ '.number_format($taxas['taxa_cash_out_fixa'], 2, ',', '.') }}</li>
                                     @if(isset($setting->limite_saque_mensal) && (float)$setting->limite_saque_mensal > 0)
                                         <li><strong>Limite Pessoa física:</strong> R$ {{ number_format($setting->limite_saque_mensal, '2', ',', '.') }} /mês</li>
                                     @else
@@ -386,8 +380,8 @@ $setting = Helper::getSetting();
                     containerValorLiquido.style.display = "block";
                 }
 
-                let tx_cash_out = parseFloat("{{ $setting->taxa_cash_out_padrao }}") || 0;
-                let taxa_fixa_padrao = parseFloat("{{ $taxa_fixa_padrao }}") || 0;
+                let tx_cash_out = parseFloat("{{ $taxas['taxa_cash_out'] }}") || 0;
+                let taxa_fixa_padrao = parseFloat("{{ $taxas['taxa_fixa_padrao'] }}") || 0;
                 let valorLiquido = currentValue - taxa_fixa_padrao - (currentValue * tx_cash_out / 100);
 
                 valorLiquidoInput.innerText = "Valor líquido a receber: " +

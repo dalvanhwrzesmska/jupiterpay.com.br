@@ -324,17 +324,25 @@
                                 <div class="col-12">
                                     <h6 class="fw-bold text-primary mt-2 mb-2">Taxas Gerais</h6>
                                 </div>
-                                <div class="mb-3 col-md-3">
-                                    <label for="editTaxaCashIn-{{ $user->id }}" class="form-label fw-semibold">Taxa Depósito</label>
+                                <div class="mb-3 col-md-4">
+                                    <label for="editTaxaCashIn-{{ $user->id }}" class="form-label fw-semibold">Taxa Depósito (%)</label>
                                     <input type="text" value="{{ $user->taxa_cash_in }}" class="form-control rounded-pill" id="editTaxaCashIn-{{ $user->id }}" name="taxa_cash_in">
                                 </div>
-                                <div class="mb-3 col-md-3">
-                                    <label for="editTaxaCashOut-{{ $user->id }}" class="form-label fw-semibold">Taxa Saque</label>
+                                <div class="mb-3 col-md-4">
+                                    <label for="editTaxaCashOut-{{ $user->id }}" class="form-label fw-semibold">Taxa Saque (%)</label>
                                     <input type="text" value="{{ $user->taxa_cash_out }}" class="form-control rounded-pill" id="editTaxaCashOut-{{ $user->id }}" name="taxa_cash_out">
                                 </div>
-                                <div class="mb-3 col-md-3">
-                                    <label for="editTaxaPercentual-{{ $user->id }}" class="form-label fw-semibold">Taxa Percentual</label>
+                                <div class="mb-3 col-md-4">
+                                    <label for="editTaxaPercentual-{{ $user->id }}" class="form-label fw-semibold">Taxa Percentual (%)</label>
                                     <input type="text" value="{{ $user->taxa_percentual }}" class="form-control rounded-pill" id="editTaxaPercentual-{{ $user->id }}" name="taxa_percentual">
+                                </div>
+                                <div class="mb-3 col-md-4">
+                                    <label for="editTaxaCashInFixa-{{ $user->id }}" class="form-label fw-semibold">Taxa Depósito (R$)</label>
+                                    <input type="text" value="{{ $user->taxa_cash_in_fixa }}" class="form-control rounded-pill" id="editTaxaCashInFixa-{{ $user->id }}" name="taxa_cash_in_fixa">
+                                </div>
+                                <div class="mb-3 col-md-4">
+                                    <label for="editTaxaCashOutFixa-{{ $user->id }}" class="form-label fw-semibold">Taxa Saque (R$)</label>
+                                    <input type="text" value="{{ $user->taxa_cash_out_fixa }}" class="form-control rounded-pill" id="editTaxaCashOutFixa-{{ $user->id }}" name="taxa_cash_out_fixa">
                                 </div>
                                 <div class="col-12"><hr></div>
                                 <div class="col-12">
@@ -359,6 +367,17 @@
                                 <div class="mb-3 col-md-3">
                                     <label for="editTaxaProdutoCheckoutPercentual-{{ $user->id }}" class="form-label fw-semibold">Taxa Percentual (%)</label>
                                     <input type="text" value="{{ $user->taxa_produto_checkout_percentual }}" class="form-control rounded-pill" id="editTaxaProdutoCheckoutPercentual-{{ $user->id }}" name="taxa_produto_checkout_percentual">
+                                </div>
+                                <div class="col-12"><hr></div>
+                                <div class="col-12">
+                                    <h6 class="fw-bold text-primary mb-2">Modo de Taxa</h6>
+                                </div>
+                                <div class="mb-3 col-md-3">
+                                    <label for="editTaxaModo-{{ $user->id }}" class="form-label fw-semibold">Modo de Taxa</label>
+                                    <select name="tax_method" id="editTaxaModo-{{ $user->id }}" class="form-select rounded-pill">
+                                        <option value="balance" {{ $user->tax_method === 'balance' ? 'selected' : '' }}>Descontar no Saldo</option>
+                                        <option value="external" {{ $user->tax_method === 'external' ? 'selected' : '' }}>Descontar na Saída</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>

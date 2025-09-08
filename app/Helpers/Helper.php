@@ -30,7 +30,7 @@ class Helper
 
             $totalSaldoBloqueado = SolicitacoesCashOut::where('user_id', $user_id)
                 ->where('status', 'PENDING')
-                ->where('descricao_transacao', 'WEB')
+                //->where('descricao_transacao', 'WEB')
                 ->sum('cash_out_liquido');
 
 

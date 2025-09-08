@@ -179,6 +179,7 @@ class CallbackController extends Controller
             }
 
             $cashout = SolicitacoesCashOut::where('idTransaction', $id)->first();
+            $cashout_tax = SolicitacoesCashOut::where('idTransaction', $id.'_TAX')->first();
 
             if(!$cashout){
                 return response()->json(['status' => false]);
@@ -186,8 +187,12 @@ class CallbackController extends Controller
 
             $cashout->update(['status' => 'CANCELLED', 'updated_at' => $data['updatedAt']]);
             $user = User::where('user_id', $cashout->user_id)->first();
-
             Helper::incrementAmount($user, $cashout->amount, 'saldo');
+
+            if ($cashout_tax) {
+                $cashout_tax->update(['status' => 'CANCELLED', 'updated_at' => $data['updatedAt']]);
+                Helper::incrementAmount($user, $cashout_tax->cash_out_liquido, 'saldo');
+            }
 
             if ($cashout->callback) {
                 $payload = [

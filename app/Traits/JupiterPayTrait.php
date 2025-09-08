@@ -13,6 +13,8 @@ use App\Models\User;
 use App\Models\Cashtime;
 use Faker\Factory as FakerFactory;
 use App\Helpers\Helper;
+use App\Models\UsersKey;
+use Brick\Math\Exception\DivisionByZeroException;
 
 trait JupiterPayTrait
 {
@@ -66,31 +68,48 @@ trait JupiterPayTrait
             ])->post(self::$urlCashIn, $payload);
 
             if ($response->successful()) {
-
                 $responseData = $response->json();
-                $setting = App::first();
-                $user = $data->user;
+                
+                $app = App::first();
+                $taxa_cash_in = $app->taxa_cash_in ?? 2;
+                $taxa_cash_out = $app->taxa_cash_out ?? 2;
+                $taxa_fixa_padrao = $app->taxa_fixa_padrao;
 
-                $taxa_cash_in_user = $user->taxa_cash_in;
-                if(floatval($taxa_cash_in_user) > 0){
-                    $setting->taxa_cash_in_padrao = $taxa_cash_in_user;
-                }
+                $userKey = UsersKey::where(['token' => $data->token, 'secret' => $data->secret])->first();
+                $userData = User::where('user_id', $userKey->user_id)->first();
 
-                $taxafixa = $setting->taxa_fixa_padrao;
-                $taxatotal = ((float)$data->amount * (float)$setting->taxa_cash_in_padrao / 100);
-                $deposito_liquido = (float)$data->amount - $taxatotal;
-                $taxa_cash_in = $taxatotal;
-                $descricao = "PORCENTAGEM";
+                $taxas = [
+                    'taxa_cash_in' => $userData->taxa_cash_in ?? $taxa_cash_in,
+                    'taxa_cash_in_fixa' => $userData->taxa_cash_in_fixa ?? $taxa_fixa_padrao,
+                    'taxa_cash_out' => $userData->taxa_cash_out ?? $taxa_cash_out,
+                    'taxa_cash_out_fixa' => $userData->taxa_cash_out_fixa ?? $taxa_fixa_padrao,
+                    'taxa_fixa_padrao' => $taxa_fixa_padrao
+                ];
 
-                if ((float)$taxatotal < (float)$setting->baseline) {
-                    $deposito_liquido = (float)$data->amount - (float)$setting->baseline;
-                    $taxa_cash_in = (float)$setting->baseline;
-                    $descricao = "FIXA";
+                $taxafixa = $taxas['taxa_cash_in_fixa'] ?? $taxa_fixa_padrao;
+                $taxa_percentual = $taxas['taxa_cash_in'] ?? $taxa_cash_in;
+
+                try{
+                    $taxatotal = ((float)$data->amount * (float)$taxa_percentual / 100);
+                    $deposito_liquido = (float)$data->amount - $taxatotal;
+                    $taxa_cash_in = $taxatotal;
+                    $descricao = "PORCENTAGEM";
+                } catch (DivisionByZeroException $e) {
+                    $taxatotal = 0;
+                    $deposito_liquido = (float)$data->amount;
+                    $taxa_cash_in = 0;
+                    $descricao = "PORCENTAGEM";
                 }
 
                 if (!is_null($taxafixa) && $taxafixa > 0) {
                     $deposito_liquido = $deposito_liquido - $taxafixa;
                     $taxa_cash_in = $taxa_cash_in + $taxafixa;
+                }
+
+                if ((float)$taxa_cash_in < (float)$app->baseline) {
+                    $deposito_liquido = (float)$data->amount - (float)$app->baseline;
+                    $taxa_cash_in = (float)$app->baseline;
+                    $descricao = "FIXA";
                 }
 
                 $date = Carbon::now();
@@ -146,26 +165,46 @@ trait JupiterPayTrait
     {
         $user = User::where('id', $request->user->id)->first();
 
-        $setting = App::first();
-        $taxafixa = $setting->taxa_fixa_padrao_cash_out ?? 0;
+        $app = App::first();
+        $taxa_cash_in = $app->taxa_cash_in ?? 5;
+        $taxa_cash_out = $app->taxa_cash_out ?? 5;
+        $taxa_fixa_padrao = $app->taxa_fixa_padrao;
 
-        $taxatotal = ((float)$request->amount * (float)$setting->taxa_cash_out_padrao / 100);
-        $cashout_liquido = (float)$request->amount - $taxatotal;
-        $taxa_cash_out = $taxatotal;
-        $descricao = "PORCENTAGEM";
+        $taxas = [
+            'taxa_cash_in' => $userData->taxa_cash_in ?? $taxa_cash_in,
+            'taxa_cash_in_fixa' => $userData->taxa_cash_in_fixa ?? $taxa_fixa_padrao,
+            'taxa_cash_out' => $userData->taxa_cash_out ?? $taxa_cash_out,
+            'taxa_cash_out_fixa' => $userData->taxa_cash_out_fixa ?? $taxa_fixa_padrao,
+            'taxa_fixa_padrao' => $taxa_fixa_padrao
+        ];
 
-        if ((float)$taxatotal < (float)$setting->baseline) {
-            $cashout_liquido = (float)$request->amount - (float)$setting->baseline;
-            $taxa_cash_out = (float)$setting->baseline;
+        try{
+            $taxatotal = ((float)$request->amount * (float)$taxas['taxa_cash_out'] / 100);
+            $cashout_liquido = (float)$request->amount - $taxatotal;
+            $taxa_cash_out = $taxatotal;
+            $descricao = "PORCENTAGEM";
+        } catch (DivisionByZeroException $e) {
+            // Tratar a exceção de divisão por zero
+            $taxatotal = 0;
+            $cashout_liquido = (float)$request->amount;
+            $taxa_cash_out = 0;
             $descricao = "FIXA";
         }
 
-        if (!is_null($taxafixa) && $taxafixa > 0) {
-            $cashout_liquido = $cashout_liquido - $taxafixa;
-            $taxa_cash_out = $taxa_cash_out + $taxafixa;
+        if (!is_null($taxas['taxa_cash_out_fixa']) && $taxas['taxa_cash_out_fixa'] > 0) {
+            $cashout_liquido = $cashout_liquido - $taxas['taxa_cash_out_fixa'];
+            $taxa_cash_out = $taxa_cash_out + $taxas['taxa_cash_out_fixa'];
         }
 
+        if ((float)$taxa_cash_out < (float)$app->baseline) {
+            $cashout_liquido = (float)$request->amount - (float)$app->baseline;
+            $taxa_cash_out = (float)$app->baseline;
+            $descricao = "FIXA";
+        }
 
+        if($user->tax_method == 'balance' && $request->baasPostbackUrl != 'web'){
+            $cashout_liquido = $request->amount;
+        }
 
         if ($user->saldo < $cashout_liquido) {
             return response()->json([
@@ -238,6 +277,10 @@ trait JupiterPayTrait
                     "callback"              => $request->baasPostbackUrl,
                     "descricao_transacao"   => $descricao
                 ];
+
+                if($user->tax_method == 'balance'){
+                    self::createTaxBalance($pixcashout, $taxa_cash_out);
+                }
 
                 $cashout = SolicitacoesCashOut::create($pixcashout);
 

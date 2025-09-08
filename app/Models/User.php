@@ -92,7 +92,10 @@ class User extends Authenticatable
         "taxa_checkout_fixa",
         "taxa_checkout_porcentagem",
         "enabled_2fa",
-        "secret_2fa"
+        "secret_2fa",
+        "taxa_cash_in_fixa",
+        "taxa_cash_out_fixa",
+        "tax_method"
     ];
 
     /**

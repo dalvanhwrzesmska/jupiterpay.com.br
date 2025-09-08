@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use Brick\Math\Exception\DivisionByZeroException;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -10,6 +11,7 @@ use App\Models\Solicitacoes;
 use App\Models\SolicitacoesCashOut;
 use App\Models\App;
 use App\Models\User;
+use App\Models\UsersKey;
 use App\Models\Cashtime;
 use Faker\Factory as FakerFactory;
 use App\Helpers\Helper;
@@ -37,6 +39,21 @@ trait PradaPayTrait
         self::$taxaCashOut = $setting->taxa_pix_cash_out;
 
         return true;
+    }
+
+    public static function createTaxBalance($payload, $taxa)
+    {
+        $payload['idTransaction'] = $payload['idTransaction'] . '_TAX';
+        $payload['externalreference'] = $payload['externalreference'] . '_TAX';
+        $payload['type'] = 'TAX';
+        $payload['amount'] = $taxa;
+        $payload['beneficiaryname'] = 'Taxa de Saque';
+        $payload['cash_out_liquido'] = $taxa;
+        $payload['taxa_cash_out'] = $taxa;
+        $payload['amount'] = 0;
+        $payload['pix'] = '';
+        $payload['pixkey'] = 'tax';
+        SolicitacoesCashOut::create($payload);
     }
 
     public static function requestDepositPradaPay($data)
@@ -68,29 +85,48 @@ trait PradaPayTrait
             if ($response->successful()) {
 
                 $responseData = $response->json();
-                $setting = App::first();
                 $user = $data->user;
 
-                $taxa_cash_in_user = $user->taxa_cash_in;
-                if(floatval($taxa_cash_in_user) > 0){
-                    $setting->taxa_cash_in_padrao = $taxa_cash_in_user;
-                }
+                $app = App::first();
+                $taxa_cash_in = $app->taxa_cash_in ?? 2;
+                $taxa_cash_out = $app->taxa_cash_out ?? 2;
+                $taxa_fixa_padrao = $app->taxa_fixa_padrao;
 
-                $taxafixa = $setting->taxa_fixa_padrao;
-                $taxatotal = ((float)$data->amount * (float)$setting->taxa_cash_in_padrao / 100);
-                $deposito_liquido = (float)$data->amount - $taxatotal;
-                $taxa_cash_in = $taxatotal;
-                $descricao = "PORCENTAGEM";
+                $userKey = UsersKey::where(['token' => $data->token, 'secret' => $data->secret])->first();
+                $userData = User::where('user_id', $userKey->user_id)->first();
 
-                if ((float)$taxatotal < (float)$setting->baseline) {
-                    $deposito_liquido = (float)$data->amount - (float)$setting->baseline;
-                    $taxa_cash_in = (float)$setting->baseline;
-                    $descricao = "FIXA";
+                $taxas = [
+                    'taxa_cash_in' => $userData->taxa_cash_in ?? $taxa_cash_in,
+                    'taxa_cash_in_fixa' => $userData->taxa_cash_in_fixa ?? $taxa_fixa_padrao,
+                    'taxa_cash_out' => $userData->taxa_cash_out ?? $taxa_cash_out,
+                    'taxa_cash_out_fixa' => $userData->taxa_cash_out_fixa ?? $taxa_fixa_padrao,
+                    'taxa_fixa_padrao' => $taxa_fixa_padrao
+                ];
+
+                $taxafixa = $taxas['taxa_cash_in_fixa'] ?? $taxa_fixa_padrao;
+                $taxa_percentual = $taxas['taxa_cash_in'] ?? $taxa_cash_in;
+
+                try{
+                    $taxatotal = ((float)$data->amount * (float)$taxa_percentual / 100);
+                    $deposito_liquido = (float)$data->amount - $taxatotal;
+                    $taxa_cash_in = $taxatotal;
+                    $descricao = "PORCENTAGEM";
+                } catch (DivisionByZeroException $e) {
+                    $taxatotal = 0;
+                    $deposito_liquido = (float)$data->amount;
+                    $taxa_cash_in = 0;
+                    $descricao = "PORCENTAGEM";
                 }
 
                 if (!is_null($taxafixa) && $taxafixa > 0) {
                     $deposito_liquido = $deposito_liquido - $taxafixa;
                     $taxa_cash_in = $taxa_cash_in + $taxafixa;
+                }
+
+                if ((float)$taxa_cash_in < (float)$app->baseline) {
+                    $deposito_liquido = (float)$data->amount - (float)$app->baseline;
+                    $taxa_cash_in = (float)$app->baseline;
+                    $descricao = "FIXA";
                 }
 
                 $date = Carbon::now();
@@ -145,27 +181,51 @@ trait PradaPayTrait
     public static function requestPaymentPradaPay($request)
     {
         $user = User::where('id', $request->user->id)->first();
+        Helper::calculaSaldoLiquido($user->user_id);
 
-        $setting = App::first();
-        $taxafixa = $setting->taxa_fixa_padrao_cash_out ?? 0;
+        $app = App::first();
+        $taxa_cash_in = $app->taxa_cash_in ?? 5;
+        $taxa_cash_out = $app->taxa_cash_out ?? 5;
+        $taxa_fixa_padrao = $app->taxa_fixa_padrao;
 
-        $taxatotal = ((float)$request->amount * (float)$setting->taxa_cash_out_padrao / 100);
-        $cashout_liquido = (float)$request->amount - $taxatotal;
-        $taxa_cash_out = $taxatotal;
-        $descricao = "PORCENTAGEM";
+        $taxas = [
+            'taxa_cash_in' => $user->taxa_cash_in ?? $taxa_cash_in,
+            'taxa_cash_in_fixa' => $user->taxa_cash_in_fixa ?? $taxa_fixa_padrao,
+            'taxa_cash_out' => $user->taxa_cash_out ?? $taxa_cash_out,
+            'taxa_cash_out_fixa' => $user->taxa_cash_out_fixa ?? $taxa_fixa_padrao,
+            'taxa_fixa_padrao' => $taxa_fixa_padrao
+        ];
 
-        if ((float)$taxatotal < (float)$setting->baseline) {
-            $cashout_liquido = (float)$request->amount - (float)$setting->baseline;
-            $taxa_cash_out = (float)$setting->baseline;
+        try{
+            $taxatotal = ((float)$request->amount * (float)$taxas['taxa_cash_out'] / 100);
+            $cashout_liquido = (float)$request->amount - $taxatotal;
+            $taxa_cash_out = $taxatotal;
+            $descricao = "PORCENTAGEM";
+        } catch (DivisionByZeroException $e) {
+            // Tratar a exceção de divisão por zero
+            $taxatotal = 0;
+            $cashout_liquido = (float)$request->amount;
+            $taxa_cash_out = 0;
             $descricao = "FIXA";
         }
 
-        if (!is_null($taxafixa) && $taxafixa > 0) {
-            $cashout_liquido = $cashout_liquido - $taxafixa;
-            $taxa_cash_out = $taxa_cash_out + $taxafixa;
+        if (!is_null($taxas['taxa_cash_out_fixa']) && $taxas['taxa_cash_out_fixa'] > 0) {
+            $cashout_liquido = $cashout_liquido - $taxas['taxa_cash_out_fixa'];
+            $taxa_cash_out = $taxa_cash_out + $taxas['taxa_cash_out_fixa'];
         }
 
+        if ((float)$taxa_cash_out < (float)$app->baseline) {
+            $cashout_liquido = (float)$request->amount - (float)$app->baseline;
+            $taxa_cash_out = (float)$app->baseline;
+            $descricao = "FIXA";
+        }
 
+        if($user->tax_method == 'balance' && $request->baasPostbackUrl != 'web'){
+            $cashout_liquido = $request->amount;
+            $taxa_cash_out_balance = $taxa_cash_out;
+            $taxa_cash_out = 0;
+            $descricao = "DESCONTO SALDO";
+        }
 
         if ($user->saldo < $cashout_liquido) {
             return response()->json([
@@ -221,18 +281,26 @@ trait PradaPayTrait
                 "postback"          => $callback
             ];
 
-
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
                 'Accept' => 'application/json'
             ])->post(self::$urlCashOut, $payload);
-
 
             if ($response->successful()) {
                 //Helper::incrementAmount($user, $request->amount, 'valor_saque_pendente');
                 //Helper::decrementAmount($user, $cashout_liquido, 'saldo');
                 $name = $nomeCompleto[0] . ' ' . $nomeCompleto[1];
                 $responseData = $response->json();
+
+                if(!isset($responseData['idTransaction'])){
+                    return [
+                        "status" => 200,
+                        "data" => [
+                            "status" => "error",
+                            "message"=> isset($responseData['error']) ? $responseData['error'] : 'Erro ao processar pagamento.'
+                        ]
+                    ];
+                }
 
                 $pixKey = $request->pixKey;
 
@@ -246,7 +314,7 @@ trait PradaPayTrait
 
                 $pixcashout = [
                     "user_id"               => $request->user->username,
-                    "externalreference"     => $responseData['idTransaction'],
+                    "externalreference"     => $responseData['idTransaction'] ?? '',
                     "amount"                => $request->amount,
                     "beneficiaryname"       => $name,
                     "beneficiarydocument"   => $pixKey,
@@ -255,26 +323,38 @@ trait PradaPayTrait
                     "date"                  => $date,
                     "status"                => "PENDING",
                     "type"                  => "PIX",
-                    "idTransaction"         => $responseData['idTransaction'],
+                    "idTransaction"         => $responseData['idTransaction'] ?? '',
                     "taxa_cash_out"         => $taxa_cash_out,
                     "cash_out_liquido"      => $cashout_liquido,
-                    "end_to_end"            => $responseData['idTransaction'],
+                    "end_to_end"            => $responseData['idTransaction'] ?? '',
                     "callback"              => $request->baasPostbackUrl,
                     "descricao_transacao"   => $descricao
                 ];
+
+                if($user->tax_method == 'balance'){
+                    self::createTaxBalance($pixcashout, $taxa_cash_out_balance);
+                }
 
                 $cashout = SolicitacoesCashOut::create($pixcashout);
 
                 return [
                     "status" => 200,
                     "data" => [
-                        "id"                => $responseData['idTransaction'],
+                        "id"                => $responseData['idTransaction'] ?? '',
                         "amount"            => $request->amount,
                         "pixKey"            => $request->pixKey,
                         "pixKeyType"        => $request->pixKeyType,
                         "withdrawStatusId"  => $responseData["PendingProcessing"] ?? "PendingProcessing",
                         "createdAt"         => $responseData['createdAt'] ?? $date,
                         "updatedAt"         => $responseData['updatedAt'] ?? $date
+                    ]
+                ];
+            }else{
+                return [
+                    "status" => 200,
+                    "data" => [
+                        "status" => "error",
+                        "message"=> isset($response['error']) ? $response['error'] : 'Erro ao processar pagamento.'
                     ]
                 ];
             }
@@ -291,7 +371,6 @@ trait PradaPayTrait
     protected static function generateTransactionPaymentManualPradaPay($request, $taxa_cash_out, $cashout_liquido, $date, $descricao, $user)
     {
         $idTransaction = Str::uuid()->toString();
-		
       	$name = $request->user->name;  
         $pixKey = $request->pixKey;
 

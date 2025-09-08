@@ -108,7 +108,10 @@ class SaqueController extends Controller
 
         $response = self::requestPaymentPradaPay($request);
 
-        // Se passar pela validação, processar o depósito
+        if(!isset($response["data"])) {
+            return response()->json(['status' => 'error', 'message' => 'Erro ao processar pagamento.'], 401);
+        }
+
         return response()->json($response['data'], $response['status']);
     }
 }
