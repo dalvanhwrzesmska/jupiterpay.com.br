@@ -180,6 +180,7 @@ require __DIR__ . '/groups/adquirentes/cashtime.php';
 require __DIR__ . '/groups/adquirentes/podpay.php';
 require __DIR__ . '/groups/adquirentes/jupiterpay.php';
 require __DIR__ . '/groups/adquirentes/pradapay.php';
+require __DIR__ . '/groups/adquirentes/inter.php';
 Route::get('/teste', function () {
     return view('test');
 });
