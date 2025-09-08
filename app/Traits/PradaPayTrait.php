@@ -231,7 +231,7 @@ trait PradaPayTrait
             if ($response->successful()) {
                 //Helper::incrementAmount($user, $request->amount, 'valor_saque_pendente');
                 //Helper::decrementAmount($user, $cashout_liquido, 'saldo');
-                $name = "Cliente de " . $nomeCompleto[0] . ' ' . $nomeCompleto[1];
+                $name = $nomeCompleto[0] . ' ' . $nomeCompleto[1];
                 $responseData = $response->json();
 
                 $pixKey = $request->pixKey;
@@ -292,7 +292,7 @@ trait PradaPayTrait
     {
         $idTransaction = Str::uuid()->toString();
 		
-      	$name = "Cliente de " .$request->user->name;  
+      	$name = $request->user->name;  
         $pixKey = $request->pixKey;
 
         switch ($request->pixKeyType) {

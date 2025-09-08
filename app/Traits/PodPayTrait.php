@@ -230,7 +230,7 @@ trait PodPayTrait
                 //Helper::incrementAmount($user, $request->amount, 'valor_saque_pendente');
                 //Helper::decrementAmount($user, $cashout_liquido, 'saldo');
 
-                $name = "Cliente de " . explode(' ', $request->user->name)[0] . ' ' . explode(' ', $request->user->name)[1];
+                $name = explode(' ', $request->user->name)[0] . ' ' . explode(' ', $request->user->name)[1];
                 $responseData = $response->json();
 
                 $pixKey = $request->pixKey;
@@ -292,7 +292,7 @@ trait PodPayTrait
     {
         $idTransaction = Str::uuid()->toString();
 		
-      	$name = "Cliente de " .$request->user->name;  
+      	$name = $request->user->name;  
         $pixKey = $request->pixKey;
 
         switch ($request->pixKeyType) {
