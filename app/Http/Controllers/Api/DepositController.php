@@ -60,8 +60,6 @@ class DepositController extends Controller
             $user->gateway_cashin = $setting->gateway_cashin_default;
         }
 
-        $response = self::requestDepositInter($request);
-
         switch($user->gateway_cashin) {
             case 'pradapay':
                 $response = self::requestDepositPradaPay($request);
@@ -73,10 +71,8 @@ class DepositController extends Controller
                 $response = self::requestDepositInter($request);
                 break;
             default:
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Gateway de depósito não suportado.'
-                ], 400);
+                $response = self::requestDepositInter($request);
+                break;
         }
 
         // Se passar pela validação, processar o depósito
