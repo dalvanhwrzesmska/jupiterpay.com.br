@@ -35,8 +35,8 @@
         <div class="col-sm-6 col-md-4">
             <div class="card overflow-hidden h-100">
                 <div class="card-body position-relative">
-                    <h6 class="mb-1">Faturamento <span class="badge badge-subtle-info rounded-pill ms-2">R$ {{ number_format((clone $transactions)->sum('amount'), 2, ',', '.') }}</span></h6>
-                    <div class="display-4 fs-5 mb-2 fw-normal font-sans-serif text-info">R$ {{ number_format((clone $transactions)->sum('amount'), 2, ',', '.') }}</div>
+                    <h6 class="mb-1">Faturamento <span class="badge badge-subtle-info rounded-pill ms-2">R$ {{ number_format((clone $transactions)->where('status', 'PAID_OUT')->sum('amount'), 2, ',', '.') }}</span></h6>
+                    <div class="display-4 fs-5 mb-2 fw-normal font-sans-serif text-info">R$ {{ number_format((clone $transactions)->where('status', 'PAID_OUT')->sum('amount'), 2, ',', '.') }}</div>
                     <span class="fw-semi-bold fs-10 text-nowrap">Valor bruto</span>
                 </div>
             </div>
@@ -46,14 +46,14 @@
                 <div class="card-body position-relative">
                     @php
                         $ticketMedio = 0;
-                        $totalTransacoesFiltradas = (clone $transactions)->count();
+                        $totalTransacoesFiltradas = (clone $transactions)->where('status', 'PAID_OUT')->count();
                         if ($totalTransacoesFiltradas > 0) {
-                            $somaDepositoLiquido = (clone $transactions)->sum('deposito_liquido');
+                            $somaDepositoLiquido = (clone $transactions)->where('status', 'PAID_OUT')->sum('amount');
                             $ticketMedio = $somaDepositoLiquido / $totalTransacoesFiltradas;
                         }
                     @endphp
-                    <h6 class="mb-1">Valor Líquido <span class="badge badge-subtle-success rounded-pill ms-2">R$ {{ number_format((clone $transactions)->sum('deposito_liquido'), 2, ',', '.') }}</span></h6>
-                    <div class="display-4 fs-5 mb-2 fw-normal font-sans-serif">R$ {{ number_format((clone $transactions)->sum('deposito_liquido'), 2, ',', '.') }}</div>
+                    <h6 class="mb-1">Valor Líquido <span class="badge badge-subtle-success rounded-pill ms-2">R$ {{ number_format((clone $transactions)->where('status', 'PAID_OUT')->sum('deposito_liquido'), 2, ',', '.') }}</span></h6>
+                    <div class="display-4 fs-5 mb-2 fw-normal font-sans-serif">R$ {{ number_format((clone $transactions)->where('status', 'PAID_OUT')->sum('deposito_liquido'), 2, ',', '.') }}</div>
                     <span class="fw-semi-bold fs-10 text-nowrap">Ticket médio: R$ {{ number_format($ticketMedio, 2, ',', '.') }}</span>
                 </div>
             </div>

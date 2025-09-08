@@ -35,8 +35,8 @@
         <div class="col-sm-6 col-md-3">
             <div class="card overflow-hidden h-100">
                 <div class="card-body position-relative">
-                    <h6 class="mb-1">Saídas</h6>
-                    <div class="display-4 fs-5 mb-2 fw-normal font-sans-serif text-info">R$ {{ number_format((clone $transactions)->sum('amount'), 2, ',', '.') }}</div>
+                    <h6 class="mb-1">Saídas Brutas</h6>
+                    <div class="display-4 fs-5 mb-2 fw-normal font-sans-serif text-info">R$ {{ number_format((clone $transactions)->where('status', 'COMPLETED')->sum('amount'), 2, ',', '.') }}</div>
                     <span class="fw-semi-bold fs-10 text-nowrap">R$ 0,00</span>
                 </div>
             </div>
@@ -44,8 +44,8 @@
         <div class="col-sm-6 col-md-3">
             <div class="card overflow-hidden h-100">
                 <div class="card-body position-relative">
-                    <h6 class="mb-1">Chargebacks</h6>
-                    <div class="display-4 fs-5 mb-2 fw-normal font-sans-serif text-info">R$ {{ number_format((clone $transactions)->sum('cash_out_liquido'), 2, ',', '.') }}</div>
+                    <h6 class="mb-1">Saídas Líquidas</h6>
+                    <div class="display-4 fs-5 mb-2 fw-normal font-sans-serif text-info">R$ {{ number_format((clone $transactions)->where('status', 'COMPLETED')->sum('cash_out_liquido'), 2, ',', '.') }}</div>
                     <span class="fw-semi-bold fs-10 text-nowrap">R$ 0,00</span>
                 </div>
             </div>
@@ -55,9 +55,9 @@
                 <div class="card-body position-relative">
                     @php
                         $ticketMedio = 0;
-                        $totalTransacoesFiltradas = (clone $transactions)->count();
+                        $totalTransacoesFiltradas = (clone $transactions)->where('status', 'PENDING')->count();
                         if ($totalTransacoesFiltradas > 0) {
-                            $somaSaqueLiquido = (clone $transactions)->sum('cash_out_liquido');
+                            $somaSaqueLiquido = (clone $transactions)->where('status', 'PENDING')->sum('cash_out_liquido');
                             $ticketMedio = $somaSaqueLiquido / $totalTransacoesFiltradas;
                         }
                     @endphp
