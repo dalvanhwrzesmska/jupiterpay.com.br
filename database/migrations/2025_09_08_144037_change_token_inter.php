@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table("token_inter", function (Blueprint $table) {
-            $table->string("refresh_token")->nullable();
+            $table->string("refresh_token")->nullable()->change();
         });
     }
 
