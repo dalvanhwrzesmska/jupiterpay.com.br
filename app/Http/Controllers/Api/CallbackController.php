@@ -69,7 +69,7 @@ class CallbackController extends Controller
                 $order->update(['status' => 'pago']);
             }
 
-            if ($cashin->callback) {
+            if ($cashin->callback && $cashin->callback != 'web' && !empty($cashin->callback)) {
                 $payload = [
                     "status"            => "paid",
                     "idTransaction"     => $cashin->idTransaction,
@@ -136,7 +136,7 @@ class CallbackController extends Controller
 
             Helper::decrementAmount($user, $request->amount, 'valor_saque_pendente');
 
-            if ($cashout->callback) {
+            if ($cashout->callback && $cashout->callback != 'web' && !empty($cashout->callback)) {
                 $payload = [
                     "status"            => "paid",
                     "idTransaction"     => $cashout->idTransaction,
@@ -194,7 +194,7 @@ class CallbackController extends Controller
                 Helper::incrementAmount($user, $cashout_tax->cash_out_liquido, 'saldo');
             }
 
-            if ($cashout->callback) {
+            if ($cashout->callback && $cashout->callback != 'web' && !empty($cashout->callback)) {
                 $payload = [
                     "status"            => "cancelled",
                     "idTransaction"     => $cashout->idTransaction,
@@ -278,7 +278,7 @@ class CallbackController extends Controller
                     $order->update(['status' => 'pago']);
                 }
 
-                if ($cashin->callback) {
+                if ($cashin->callback && $cashin->callback != 'web' && !empty($cashin->callback)) {
                     $payload = [
                         "status"            => "paid",
                         "idTransaction"     => $cashin->idTransaction,
@@ -349,7 +349,7 @@ class CallbackController extends Controller
                     break;
             }
 
-            if ($cashout->callback) {
+            if ($cashout->callback && $cashout->callback != 'web' && !empty($cashout->callback)) {
                 $payload = [
                     "status"            => $status == 'EFETIVADO' ? "paid" : "cancelled",
                     "idTransaction"     => $cashout->idTransaction,
