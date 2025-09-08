@@ -461,6 +461,11 @@ trait PradaPayTrait
 
             if ($response->successful()) {
                 $responseData = $response->json();
+
+                if(isset($responseData['error'])){
+                    return back()->with('error', $responseData['error']);
+                }
+
                 $pixcashout = [
                     "externalreference"     => $responseData['idTransaction'],
                     "idTransaction"         => $responseData['idTransaction'],

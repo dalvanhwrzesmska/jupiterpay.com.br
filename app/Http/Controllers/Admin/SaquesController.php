@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use App\Helpers\Helper;
 use App\Traits\CashtimeTrait;
 use App\Traits\PradaPayTrait;
+use App\Traits\InterTrait;
 
 class SaquesController extends Controller
 {
@@ -45,7 +46,21 @@ class SaquesController extends Controller
             return back()->with("error", "Usuário sem permissões.");
         }
 
-        return PradaPayTrait::liberarSaqueManualPradaPay($id);
+        $saques = SolicitacoesCashOut::find($id);
+        if (!$saques) {
+            return back()->with("error", "Solicitação de saque não encontrado.");
+        }
+
+        $user = User::where('user_id', $saques->user_id)->first();
+
+        switch($user->gateway_cashout) {
+            case 'pradapay':
+                return PradaPayTrait::liberarSaqueManualPradaPay($id);
+            case 'inter':
+                return InterTrait::liberarSaqueManualInter($id);
+            default:
+                return back()->with('error', 'Gateway de saque não suportado.');
+        }
     }
 
     public function rejeitar($id, Request $request)
