@@ -15,6 +15,7 @@ use App\Models\UsersKey;
 use App\Models\Cashtime;
 use Faker\Factory as FakerFactory;
 use App\Helpers\Helper;
+use App\Models\TokenInter;
 
 trait InterTrait
 {
@@ -54,7 +55,7 @@ trait InterTrait
         return true;
     }
 
-    public static function createTaxBalance($payload, $taxa)
+    public static function createTaxBalanceInter($payload, $taxa)
     {
         $payload['idTransaction'] = $payload['idTransaction'] . '_TAX';
         $payload['externalreference'] = $payload['externalreference'] . '_TAX';
@@ -72,6 +73,14 @@ trait InterTrait
     public static function authTokenInter()
     {
         if (self::generateCredentialsInter()) {
+
+            $existingToken = TokenInter::latest()->first();
+            if ($existingToken) {
+                $expiresAt = Carbon::parse($existingToken->expires_at);
+                if ($expiresAt->isFuture()) {
+                    return $existingToken->access_token;
+                }
+            }
 
             $query = [
                 'client_id' => self::$clientIdInter,
@@ -92,6 +101,10 @@ trait InterTrait
 
             if ($response->successful()) {
                 $responseData = $response->json();
+                TokenInter::create([
+                    'access_token' => $responseData['access_token'],
+                    'expires_at' => Carbon::now()->addSeconds($responseData['expires_in'])
+                ]);
                 return $responseData['access_token'];
             } else {
                 Log::error('Erro ao obter token de autenticação Inter: ' . $response->body());
@@ -391,7 +404,7 @@ trait InterTrait
                 ];
 
                 if($user->tax_method == 'balance'){
-                    self::createTaxBalance($pixcashout, $taxa_cash_out_balance);
+                    self::createTaxBalanceInter($pixcashout, $taxa_cash_out_balance);
                 }
 
                 $cashout = SolicitacoesCashOut::create($pixcashout);
