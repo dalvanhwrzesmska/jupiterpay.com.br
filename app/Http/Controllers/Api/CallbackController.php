@@ -45,10 +45,10 @@ class CallbackController extends Controller
             Helper::incrementAmount($user, $cashin->deposito_liquido, 'saldo');
             Helper::calculaSaldoLiquido($user->user_id);
 
-          	if (isset($user->gerente_id) && !is_null($user->gerente_id)) {
-            	$gerente = User::where('id', $user->gerente_id)->first();
-            	$gerente_porcentagem = $gerente->gerente_percentage;
+            $gerente = User::where('id', $user->gerente_id)->first();
 
+          	if ($gerente && isset($user->gerente_id) && !is_null($user->gerente_id) && isset($gerente->gerente_percentage) && $gerente->gerente_percentage > 0) {
+            	$gerente_porcentagem = $gerente->gerente_percentage;
                 $valor = (float) $cashin->taxa_cash_in * (float) $gerente_porcentagem / 100;
 
                 Transactions::create([
