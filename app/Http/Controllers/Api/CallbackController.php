@@ -233,8 +233,8 @@ class CallbackController extends Controller
 
         $tipoMovimento = $data['tipoMovimentacao'] ?? null;
         if(!$tipoMovimento) {
-            if (isset($data['txid'])) {
-                $data['orderId'] = $data['txid'];
+            if (isset($data['pix'][0]['txid'])) {
+                $data['orderId'] = $data['pix'][0]['txid'];
 
                 if(empty($data['orderId']))
                 {
