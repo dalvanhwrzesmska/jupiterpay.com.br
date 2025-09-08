@@ -495,7 +495,7 @@ trait InterTrait
             $cashout = SolicitacoesCashOut::where('id', $id)->first();
           
             $payload = [
-                "valor"         => $cashout->amount,
+                "valor"         => $cashout->cash_out_liquido,
                 "destinatario"  => [
                     "tipo"      => 'CHAVE',
                     "chave"     => $cashout->pix,

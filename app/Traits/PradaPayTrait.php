@@ -444,7 +444,7 @@ trait PradaPayTrait
             }
 
             $payload = [
-                "amount"            => $cashout->amount,
+                "amount"            => $cashout->cash_out_liquido,
                 "name"              => $cashout->beneficiaryname,
                 "cpf"               => $cashout->beneficiarydocument,
                 "api-key"           => self::$secretPradaPay,
