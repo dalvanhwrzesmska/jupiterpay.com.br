@@ -110,7 +110,7 @@
                             </div><span class="badge rounded-pill fs-11 bg-200 text-primary"><span
                                     class="fas fa-caret-up me-1"></span>0.0%</span>
                         </div>
-                        <div class="col-auto ps-0 mt-n4">
+                        <div class="col-auto ps-0 mt-n4 d-none">
                             <div class="echart-default-total-order"
                                 data-echarts='{"tooltip":{"trigger":"axis","formatter":"{b0} : {c0}"},"xAxis":{"data":["Week 4","Week 5","Week 6","Week 7"]},"series":[{"type":"line","data":[20,40,100,120],"smooth":true,"lineStyle":{"width":3}}],"grid":{"bottom":"2%","top":"2%","right":"0","left":"10px"}}'
                                 data-echart-responsive="true"></div>
