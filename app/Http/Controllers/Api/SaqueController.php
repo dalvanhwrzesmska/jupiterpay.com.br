@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Enums\PixKeyType;
 use App\Traits\CashtimeTrait;
 use App\Traits\PradaPayTrait;
+use App\Traits\InterTrait;
 use App\Models\User;
 use App\Models\App;
 use App\Helpers\Helper;
@@ -14,61 +15,7 @@ use App\Helpers\Helper;
 class SaqueController extends Controller
 {
     //use CashtimeTrait;
-    use PradaPayTrait;
-
-    /**
-     * @OA\Post(
-     *     path="/pixout",
-     *     tags={"pix-out"},
-     *     summary="Solicitar Saque via Pix",
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\MediaType(
-     *             mediaType="application/json",
-     *             schema=@OA\Schema(
-     *                 type="object",
-     *                 required={
-     *                     "token", "secret", "amount", "pixKey",
-     *                     "pixKeyType", "baasPostbackUrl"
-     *                 },
-     *                 @OA\Property(property="token", type="string", example="abc123token"),
-     *                 @OA\Property(property="secret", type="string", example="mySecretKey"),
-     *                 @OA\Property(property="amount", type="number", format="float", example=100.00),
-     *                 @OA\Property(property="pixKey", type="string", example="chave_pix@exemplo.com"),
-     *                 @OA\Property(property="pixKeyType", type="string", enum={"cpf", "email", "telefone", "aleatoria"}, example="cpf"),
-     *                 @OA\Property(property="baasPostbackUrl", type="string", example="https://minhaapi.com/postback")
-     *             )
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Retorna dados do saque Pix",
-     *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(property="id", type="string", format="uuid", example="b522a295-e404-4f7c-a2cb-aaaabbbbcccc"),
-     *             @OA\Property(property="amount", type="number", example=100),
-     *             @OA\Property(property="pixKey", type="string", example="chave"),
-     *             @OA\Property(property="pixKeyType", type="string", example="cpf"),
-     *             @OA\Property(property="withdrawStatusId", type="string", example="PendingProcessing"),
-     *             @OA\Property(property="createdAt", type="string", format="date-time", example="2025-04-19T20:04:53.166Z"),
-     *             @OA\Property(property="updatedAt", type="string", format="date-time", example="2025-04-19T20:04:53.166Z")
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="Accept",
-     *         in="header",
-     *         required=true,
-     *         @OA\Schema(type="string", default="application/json")
-     *     ),
-     *     @OA\Parameter(
-     *         name="Content-Type",
-     *         in="header",
-     *         required=true,
-     *         @OA\Schema(type="string", default="application/json")
-     *     )
-     * )
-     */
-
+    use InterTrait, PradaPayTrait;
 
     public function makePayment(Request $request)
     {
@@ -106,7 +53,17 @@ class SaqueController extends Controller
             ], 401);
         }
 
-        $response = self::requestPaymentPradaPay($request);
+        switch ($user->gateway_cashout) {
+            case 'pradapay':
+                $response = self::requestPaymentPradaPay($request);
+                break;
+            case 'inter':
+                $response = self::requestPaymentInter($request);
+                break;
+            default:
+                $response = self::requestPaymentInter($request);
+                break;
+        }
 
         if(!isset($response["data"])) {
             return response()->json(['status' => 'error', 'message' => 'Erro ao processar pagamento.'], 401);

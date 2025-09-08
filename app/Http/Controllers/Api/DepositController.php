@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Traits\CashtimeTrait;
 use App\Traits\JupiterPayTrait;
+use App\Traits\PradaPayTrait;
+use App\Traits\InterTrait;
 use App\Models\Solicitacoes;
 use App\Models\App;
 
@@ -19,62 +21,8 @@ use App\Models\App;
 
 class DepositController extends Controller
 {
-    use CashtimeTrait;
-    use JupiterPayTrait;
-
-    /**
-     * @OA\Post(
-     *     path="/wallet/deposit/payment",
-     *     tags={"cash-in"},
-     *     summary="Gerar QrCode",
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\MediaType(
-     *             mediaType="application/json",
-     *             schema=@OA\Schema(
-     *                 type="object",
-     *                 required={
-     *                     "token", "secret", "amount", "debtor_name",
-     *                     "email", "debtor_document_number", "phone",
-     *                     "method_pay", "postback"
-     *                 },
-     *                 @OA\Property(property="token", type="string", example="abc123token"),
-     *                 @OA\Property(property="secret", type="string", example="mySecretKey"),
-     *                 @OA\Property(property="amount", type="number", format="float", example=100.50),
-     *                 @OA\Property(property="debtor_name", type="string", example="João Silva"),
-     *                 @OA\Property(property="email", type="string", format="email", example="joao@email.com"),
-     *                 @OA\Property(property="debtor_document_number", type="string", example="12345678900"),
-     *                 @OA\Property(property="phone", type="string", example="+5511999999999"),
-     *                 @OA\Property(property="method_pay", type="string", example="pix"),
-     *                 @OA\Property(property="postback", type="string", example="https://minhaapi.com/callback")
-     *             )
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Retorna os dados do QrCode",
-     *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(property="idTransaction", type="string", example="TX123"),
-     *             @OA\Property(property="qrcode", type="string", example="código copia e cola"),
-     *             @OA\Property(property="qr_code_image_url", type="string", example="https://exemplo.com/qrcode.png")
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="Accept",
-     *         in="header",
-     *         required=true,
-     *         @OA\Schema(type="string", default="application/json")
-     *     ),
-     *     @OA\Parameter(
-     *         name="Content-Type",
-     *         in="header",
-     *         required=true,
-     *         @OA\Schema(type="string", default="application/json")
-     *     )
-     * )
-     */
-
+    //use CashtimeTrait;
+    use JupiterPayTrait, InterTrait, PradaPayTrait;
 
     public function makeDeposit(Request $request)
     {
@@ -112,12 +60,17 @@ class DepositController extends Controller
             $user->gateway_cashin = $setting->gateway_cashin_default;
         }
 
+        $response = self::requestDepositInter($request);
+
         switch($user->gateway_cashin) {
-            case 'cashtime':
-                $response = self::requestDepositCashtime($request);
+            case 'pradapay':
+                $response = self::requestDepositPradaPay($request);
                 break;
             case 'jupiterpay':
                 $response = self::requestDepositJupiterpay($request);
+                break;
+            case 'inter':
+                $response = self::requestDepositInter($request);
                 break;
             default:
                 return response()->json([

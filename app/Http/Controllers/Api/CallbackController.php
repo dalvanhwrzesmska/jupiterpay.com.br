@@ -224,4 +224,76 @@ class CallbackController extends Controller
             }
         }
     }
+
+    public function callbackInter(Request $request)
+    {
+        $data = $request->all();
+
+        \Log::debug("[INTER] Received Callback: " . json_encode($data));
+
+        $tipoMovimento = $data['tipoMovimentacao'] ?? null;
+        if(!$tipoMovimento) {
+            return response()->json(['status'=> 'error', 'message' => 'Tipo de movimentação não especificada.']);
+        }
+
+        if ($tipoMovimento == "PAGAMENTO") {
+            $id = null;
+            if (isset($data['codigoSolicitacao'])) {
+                $id = $data['codigoSolicitacao'];
+            }
+
+            if (empty($id)) {
+                Log::error("[INTER] Callback sem codigoSolicitacao");
+                return response()->json(['status' => false]);
+            }
+
+            $cashout = SolicitacoesCashOut::where('idTransaction', $id)->first();
+            if (!$cashout || $cashout->status != "PENDING") {
+                return response()->json(['status' => false]);
+            }
+
+            $status = $data['status'] ?? null;
+            $user = User::where('user_id', $cashout->user_id)->first();
+
+            switch ($status) {
+                case 'REPROVADO':
+                    $cashout->update(['status' => 'CANCELLED', 'updated_at' => Carbon::now()]);
+                    Helper::incrementAmount($user, $cashout->amount, 'saldo');
+                    break;
+                case 'EFETIVADO':
+                    $cashout->update(['status' => 'COMPLETED', 'updated_at' => Carbon::now()]);
+                    Helper::decrementAmount($user, $cashout->amount, 'valor_saque_pendente');
+                    break;
+            }
+
+            if ($cashout->callback) {
+                $payload = [
+                    "status"            => $status == 'EFETIVADO' ? "paid" : "cancelled",
+                    "idTransaction"     => $cashout->idTransaction,
+                    "typeTransaction"   => "PAYMENT"
+                ];
+
+                $sendcallback = Http::withHeaders([
+                    'Content-Type' => 'application/json',
+                    'accept' => 'application/json'
+                ])->post($cashout->callback, $payload);
+
+                \Log::debug("[INTER] Send Callback: Para $cashout->callback -> Enviando...");
+                if ($cashout->callback && $cashout->callback != 'web') {
+                    $payload = [
+                        "status"            => $status == 'EFETIVADO' ? "paid" : "cancelled",
+                        "idTransaction"     => $cashout->idTransaction,
+                        "typeTransaction"   => "PAYMENT"
+                    ];
+
+                    Http::withHeaders([
+                        'Content-Type' => 'application/json',
+                        'accept' => 'application/json'
+                    ])->post($cashout->callback, $payload);
+
+                    return response()->json(['status' => $status == 'EFETIVADO' ? "paid" : "cancelled"]);
+                }
+            }
+        }
+    }
 }
