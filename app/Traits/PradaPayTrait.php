@@ -344,11 +344,33 @@ trait PradaPayTrait
             $cashout = SolicitacoesCashOut::where('id', $id)->first();
             $callback = url("pradapay/callback/withdraw");
 
+            $tipoChave = 'DOCUMENT';
+
+            switch ($cashout->pixkey) {
+                case 'cpf':
+                    $tipoChave = 'DOCUMENT';
+                    break;
+                case 'cnpj':
+                    $tipoChave = 'CNPJ';
+                    break;
+                case 'phone':
+                    $tipoChave = 'PHONE';
+                    break;
+                case 'email':
+                    $tipoChave = 'EMAIL';
+                    break;
+                case 'random':
+                    $tipoChave = 'EVP';
+                    break;
+            }
+
             $payload = [
                 "amount"            => $cashout->amount,
                 "name"              => $cashout->beneficiaryname,
                 "cpf"               => $cashout->beneficiarydocument,
-                "api-key"           => $cashout->pix,
+                "api-key"           => self::$secretPradaPay,
+                "tipo_chave"        => $tipoChave,
+                "keypix"            => $cashout->pix,
                 "postback"          => $callback
             ];
           
