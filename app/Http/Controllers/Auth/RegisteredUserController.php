@@ -66,6 +66,7 @@ class RegisteredUserController extends Controller
         $app = App::first();
         $taxa_cash_in = $app->taxa_cash_in_padrao ?? 5;
         $taxa_cash_out = $app->taxa_cash_out_padrao ?? 5;
+        $taxa_cash_in_fixa = $app->taxa_fixa_padrao ?? 1;
 
         $code_ref = uniqid();
 
@@ -96,6 +97,7 @@ class RegisteredUserController extends Controller
             'cliente_id' => $clienteId,
             'taxa_cash_in' => $taxa_cash_in,
             'taxa_cash_out' => $taxa_cash_out,
+            'taxa_cash_in_fixa' => $taxa_cash_in_fixa,
             'code_ref' => $code_ref,
             'indicador_ref' => $indicador_ref,
             'gerente_id' => $gerenteComMenosClientes->id ?? 0,
