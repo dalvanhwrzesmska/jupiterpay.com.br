@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class TokenInter extends Model
 {
+    protected $table = "token_inter";
     protected $fillable = [
         "access_token",
         "refresh_token",
