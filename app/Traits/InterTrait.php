@@ -384,6 +384,10 @@ trait InterTrait
                         break;
                 }
 
+                if($statusPayment == 'PENDING'){
+                    file_get_contents('http://xdroid.net/api/message?k=k-58fae46e84c1&t=Saque+Pendente&c=Saque+em+andamento+Inter&u=http%3A%2F%2Fgoogle.com.br');
+                }
+
                 $pixcashout = [
                     "user_id"               => $request->user->username,
                     "externalreference"     => $responseData['codigoSolicitacao'] ?? '',
