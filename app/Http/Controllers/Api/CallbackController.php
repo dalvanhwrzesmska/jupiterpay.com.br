@@ -231,7 +231,7 @@ class CallbackController extends Controller
 
         \Log::debug("[INTER] Received Callback: " . json_encode($data));
 
-        $tipoMovimento = $data['tipoMovimentacao'] ?? null;
+        $tipoMovimento = isset($data[0]['tipoMovimentacao']) ? $data[0]['tipoMovimentacao'] : null;
         if(!$tipoMovimento) {
             if (isset($data['pix'][0]['txid'])) {
                 $data['orderId'] = $data['pix'][0]['txid'];
