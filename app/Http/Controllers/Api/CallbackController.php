@@ -319,8 +319,8 @@ class CallbackController extends Controller
 
         if ($tipoMovimento == "PAGAMENTO") {
             $id = null;
-            if (isset($data['codigoSolicitacao'])) {
-                $id = $data['codigoSolicitacao'];
+            if (isset($data[0]['codigoSolicitacao'])) {
+                $id = $data[0]['codigoSolicitacao'];
             }
 
             if (empty($id)) {
