@@ -357,12 +357,17 @@ trait InterTrait
                 $responseData = $response->json();
                 $name = $nomeCompleto[0] . ' ' . $nomeCompleto[1];
 
-                if(!isset($responseData['idTransaction'])){
+                if(!isset($responseData['codigoSolicitacao'])){
+                    $mensagem = "Falha ao processar pagamento.";
+                    if(isset($responseData['title'])){
+                        $mensagem = $responseData['title'] . ": " . ($responseData['detail'] ?? '');
+                    }
+
                     return [
                         "status" => 200,
                         "data" => [
                             "status" => "error",
-                            "message"=> isset($responseData['error']) ? $responseData['error'] : 'Erro ao processar pagamento.'
+                            "message"=> $mensagem
                         ]
                     ];
                 }
@@ -384,8 +389,12 @@ trait InterTrait
                         break;
                 }
 
-                if($statusPayment == 'PENDING'){
-                    file_get_contents('http://xdroid.net/api/message?k=k-58fae46e84c1&t=Saque+Pendente&c=Saque+em+andamento+Inter&u=http%3A%2F%2Fgoogle.com.br');
+                if ($statusPayment == 'PENDING') {
+                    try {
+                        @file_get_contents('https://xdroid.net/api/message?k=k-58fae46e84c1&t=Saque+Pendente&c=Saque+em+andamento+Inter&u=http%3A%2F%2Fgoogle.com.br');
+                    } catch (\Throwable $e) {
+                        // Ignora qualquer erro silenciosamente, sem log
+                    }
                 }
 
                 $pixcashout = [
@@ -519,6 +528,15 @@ trait InterTrait
             ])
             ->post(self::$urlInter . '/banking/v2/pix', $payload);
 
+            if(!isset($response['codigoSolicitacao'])){
+                $mensagem = "Falha ao processar pagamento.";
+                if(isset($response['title'])){
+                    $mensagem = $response['title'] . ": " . ($response['detail'] ?? '');
+                }
+
+                return back()->with('error', $mensagem);
+            }
+            
             if ($response->successful()) {
                 $responseData = $response->json();
                 $pixcashout = [
