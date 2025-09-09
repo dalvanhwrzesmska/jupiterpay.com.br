@@ -248,6 +248,16 @@ $setting = Helper::getSetting();
                       @if (session('error'))
                       <div class="alert alert-danger w-100">{{  session('error') }} </div>
                       @endif
+
+                      <div class="d-flex justify-content-center gap-2 mb-3">
+                          <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&pcampaignid=web_share" target="_blank">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Play Store" style="width: 120px;height: 100%;">
+                          </a>
+                          <a href="https://apps.apple.com/br/app/google-authenticator/id388497605" target="_blank">
+                            <img src="https://www.gov.br/pt-br/imagens-de-servicos/apple.png" alt="Apple Store" style="width: 130px;">
+                          </a>
+                      </div>
+
                       @php if($isRegistered == false): @endphp
                       <div class="mb-4">
                           <h5 class='text-center'>Escaneie o código 2FA</h5>

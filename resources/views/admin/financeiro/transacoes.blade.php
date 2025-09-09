@@ -64,6 +64,34 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="mb-4 col-xxl-6 col-md-6">
+                    <div class="border-4 card card-raised card-border-color ">
+                        <div class="px-4 card-body">
+                            <div class="mb-2 d-flex justify-content-between align-items-center">
+                                <div class="me-2">
+                                    <div class="display-5 text-success">{{ "R$ ".number_format($lucro_taxa_entrada ?? 0, 2, ',', '.') }}</div>
+                                    <div class="card-text">Lucro Taxa (Entrada)</div>
+                                </div>
+                                <div class="text-white icon-circle bg-warning card-color"><i class="fa-solid fa-dollar-sign"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4 col-xxl-6 col-md-6">
+                    <div class="border-4 card card-raised card-border-color ">
+                        <div class="px-4 card-body">
+                            <div class="mb-2 d-flex justify-content-between align-items-center">
+                                <div class="me-2">
+                                    <div class="display-5 text-success">{{ "R$ ".number_format($lucro_taxa_saida ?? 0, 2, ',', '.') }}</div>
+                                    <div class="card-text">Lucro Taxa (Saída)</div>
+                                </div>
+                                <div class="text-white icon-circle bg-warning card-color"><i class="fa-solid fa-dollar-sign"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <!-- End:: row-1 -->
 

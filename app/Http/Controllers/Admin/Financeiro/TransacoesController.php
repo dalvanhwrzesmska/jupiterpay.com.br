@@ -64,6 +64,8 @@ class TransacoesController extends Controller
         $valor_aprovado_mes = Solicitacoes::where('status', 'PAID_OUT')->whereMonth('date', Carbon::now()->month)->whereYear('date', Carbon::now()->year)->sum('amount') + SolicitacoesCashOut::where('status', 'COMPLETED')->whereMonth('date', Carbon::now()->month)->whereYear('date', Carbon::now()->year)->sum('amount');
         $valor_aprovado_total = Solicitacoes::where('status', 'PAID_OUT')->sum('amount') + SolicitacoesCashOut::where('status', 'COMPLETED')->sum('amount');
 
+        $lucro_taxa_entrada = Solicitacoes::where('status', 'PAID_OUT')->sum(DB::raw('amount - deposito_liquido'));
+        $lucro_taxa_saida = SolicitacoesCashOut::where('status', 'COMPLETED')->sum('taxa_cash_out');
 
         return view("admin.financeiro.transacoes", compact(
             "transacoes_aprovadas",
@@ -81,7 +83,10 @@ class TransacoesController extends Controller
             "pixGeneratedTotal",
             'deposits',
             'totalPages',
-            'page'
+            'page',
+
+            'lucro_taxa_entrada',
+            'lucro_taxa_saida'
         ));
     }
 }
