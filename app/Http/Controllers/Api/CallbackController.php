@@ -335,7 +335,7 @@ class CallbackController extends Controller
                 return response()->json(['status' => false]);
             }
 
-            $status = $data['status'] ?? null;
+            $status = $data[0]['status'] ?? null;
             $user = User::where('user_id', $cashout->user_id)->first();
 
             switch ($status) {
@@ -383,6 +383,8 @@ class CallbackController extends Controller
                     return response()->json(['status' => $status == 'EFETIVADO' ? "paid" : "cancelled"]);
                 }
             }
+
+            return response()->json(['status' => $status == 'EFETIVADO' ? "paid" : "cancelled"]);
         }
     }
 }
