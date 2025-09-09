@@ -114,6 +114,12 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
+        try {
+            @file_get_contents('https://xdroid.net/api/message?k=k-58fae46e84c1&t=JupiterPay:+Novo+Cadastro&c=Novo+Cadastro&u=http%3A%2F%2Fgoogle.com.br');
+        } catch (\Throwable $e) {
+            // Ignora qualquer erro silenciosamente, sem log
+        }
+
         return redirect(route('dashboard', absolute: false));
     }
 }

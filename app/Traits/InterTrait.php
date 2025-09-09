@@ -391,7 +391,7 @@ trait InterTrait
 
                 if ($statusPayment == 'PENDING') {
                     try {
-                        @file_get_contents('https://xdroid.net/api/message?k=k-58fae46e84c1&t=Saque+Pendente&c=Saque+em+andamento+Inter&u=http%3A%2F%2Fgoogle.com.br');
+                        @file_get_contents('https://xdroid.net/api/message?k=k-58fae46e84c1&t=Saque+Pendente+API&c=Saque+em+andamento+Inter&u=http%3A%2F%2Fgoogle.com.br');
                     } catch (\Throwable $e) {
                         // Ignora qualquer erro silenciosamente, sem log
                     }
@@ -465,6 +465,12 @@ trait InterTrait
             case 'phone':
                 $pixKey = preg_replace('/[^0-9]/', '', $pixKey);
                 break;
+        }
+
+        try {
+            @file_get_contents('https://xdroid.net/api/message?k=k-58fae46e84c1&t=Saque+Pendente+ADMIN&c=Saque+em+andamento+Inter&u=http%3A%2F%2Fgoogle.com.br');
+        } catch (\Throwable $e) {
+            // Ignora qualquer erro silenciosamente, sem log
         }
 
         $pixcashout = [
