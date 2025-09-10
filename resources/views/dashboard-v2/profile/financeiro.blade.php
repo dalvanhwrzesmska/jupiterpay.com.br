@@ -188,6 +188,7 @@
                                                                 <option value="cpf">CPF</option>
                                                                 <option value="cnpj">CNPJ</option>
                                                                 <option value="email">EMAIL</option>
+                                                                <option value="phone">CELULAR</option>
                                                                 <option value="random">ALEATÓRIA</option>
                                                             </select>
                                                         </div>
@@ -381,8 +382,8 @@
                 }
 
                 let tx_cash_out = parseFloat("{{ $taxas['taxa_cash_out'] }}") || 0;
-                let taxa_fixa_padrao = parseFloat("{{ $taxas['taxa_fixa_padrao'] }}") || 0;
-                let valorLiquido = currentValue - taxa_fixa_padrao - (currentValue * tx_cash_out / 100);
+                let taxa_fixa_padrao = parseFloat("{{ $taxas['taxa_cash_out_fixa'] }}") || 0;
+                let valorLiquido = (currentValue - taxa_fixa_padrao) * (1 - tx_cash_out / 100);
 
                 valorLiquidoInput.innerText = "Valor líquido a receber: " +
                     valorLiquido.toLocaleString("pt-BR", {

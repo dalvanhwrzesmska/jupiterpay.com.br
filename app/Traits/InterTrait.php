@@ -2,18 +2,15 @@
 
 namespace App\Traits;
 
-use Brick\Math\Exception\DivisionByZeroException;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use App\Models\Solicitacoes;
 use App\Models\SolicitacoesCashOut;
-use App\Models\App;
 use App\Models\User;
 use App\Models\UsersKey;
 use App\Models\Cashtime;
-use Faker\Factory as FakerFactory;
 use App\Helpers\Helper;
 use App\Models\TokenInter;
 
@@ -53,21 +50,6 @@ trait InterTrait
         self::$taxaCashOut = $setting->taxa_pix_cash_out;
 
         return true;
-    }
-
-    public static function createTaxBalanceInter($payload, $taxa)
-    {
-        $payload['idTransaction'] = $payload['idTransaction'] . '_TAX';
-        $payload['externalreference'] = $payload['externalreference'] . '_TAX';
-        $payload['type'] = 'TAX';
-        $payload['amount'] = $taxa;
-        $payload['beneficiaryname'] = 'Taxa de Saque';
-        $payload['cash_out_liquido'] = $taxa;
-        $payload['taxa_cash_out'] = $taxa;
-        $payload['amount'] = 0;
-        $payload['pix'] = '';
-        $payload['pixkey'] = 'tax';
-        SolicitacoesCashOut::create($payload);
     }
 
     public static function authTokenInter()
@@ -157,51 +139,15 @@ trait InterTrait
             //dd($bearerToken, $response->json());
 
             if ($response->successful()) {
-
                 $responseData = $response->json();
-                $user = $data->user;
-
-                $app = App::first();
-                $taxa_cash_in = $app->taxa_cash_in ?? 2;
-                $taxa_cash_out = $app->taxa_cash_out ?? 2;
-                $taxa_fixa_padrao = $app->taxa_fixa_padrao;
 
                 $userKey = UsersKey::where(['token' => $data->token, 'secret' => $data->secret])->first();
-                $userData = User::where('user_id', $userKey->user_id)->first();
+                $taxas = Helper::calcularTaxas($userKey->user_id, $data->amount);
 
-                $taxas = [
-                    'taxa_cash_in' => $userData->taxa_cash_in ?? $taxa_cash_in,
-                    'taxa_cash_in_fixa' => $userData->taxa_cash_in_fixa ?? $taxa_fixa_padrao,
-                    'taxa_cash_out' => $userData->taxa_cash_out ?? $taxa_cash_out,
-                    'taxa_cash_out_fixa' => $userData->taxa_cash_out_fixa ?? $taxa_fixa_padrao,
-                    'taxa_fixa_padrao' => $taxa_fixa_padrao
-                ];
-
-                $taxafixa = $taxas['taxa_cash_in_fixa'] ?? $taxa_fixa_padrao;
-                $taxa_percentual = $taxas['taxa_cash_in'] ?? $taxa_cash_in;
-
-                try{
-                    $taxatotal = ((float)$data->amount * (float)$taxa_percentual / 100);
-                    $deposito_liquido = (float)$data->amount - $taxatotal;
-                    $taxa_cash_in = $taxatotal;
-                    $descricao = "PORCENTAGEM";
-                } catch (DivisionByZeroException $e) {
-                    $taxatotal = 0;
-                    $deposito_liquido = (float)$data->amount;
-                    $taxa_cash_in = 0;
-                    $descricao = "PORCENTAGEM";
-                }
-
-                if (!is_null($taxafixa) && $taxafixa > 0) {
-                    $deposito_liquido = $deposito_liquido - $taxafixa;
-                    $taxa_cash_in = $taxa_cash_in + $taxafixa;
-                }
-
-                if ((float)$taxa_cash_in < (float)$app->baseline) {
-                    $deposito_liquido = (float)$data->amount - (float)$app->baseline;
-                    $taxa_cash_in = (float)$app->baseline;
-                    $descricao = "FIXA";
-                }
+                $deposito_liquido = $taxas['cash_in_liquido'];
+                $taxa_cash_in = $taxas['cash_in_padrao'];
+                $taxafixa = $taxas['taxa_fixa_padrao'];
+                $descricao = $taxas['taxa_fixa_padrao'] > 0 ? "FIXA" : "PORCENTAGEM";
 
                 $date = Carbon::now();
 
@@ -256,43 +202,12 @@ trait InterTrait
     {
         $user = User::where('id', $request->user->id)->first();
         Helper::calculaSaldoLiquido($user->user_id);
+        $taxas = Helper::calcularTaxas($user->user_id, $request->amount);
 
-        $app = App::first();
-        $taxa_cash_in = $app->taxa_cash_in ?? 5;
-        $taxa_cash_out = $app->taxa_cash_out ?? 5;
-        $taxa_fixa_padrao = $app->taxa_fixa_padrao;
+        $cashout_liquido = $taxas['cash_out_liquido'];
+        $taxa_cash_out = $taxas['cash_out_taxa'];
 
-        $taxas = [
-            'taxa_cash_in' => $user->taxa_cash_in ?? $taxa_cash_in,
-            'taxa_cash_in_fixa' => $user->taxa_cash_in_fixa ?? $taxa_fixa_padrao,
-            'taxa_cash_out' => $user->taxa_cash_out ?? $taxa_cash_out,
-            'taxa_cash_out_fixa' => $user->taxa_cash_out_fixa ?? $taxa_fixa_padrao,
-            'taxa_fixa_padrao' => $taxa_fixa_padrao
-        ];
-
-        try{
-            $taxatotal = ((float)$request->amount * (float)$taxas['taxa_cash_out'] / 100);
-            $cashout_liquido = (float)$request->amount - $taxatotal;
-            $taxa_cash_out = $taxatotal;
-            $descricao = "PORCENTAGEM";
-        } catch (DivisionByZeroException $e) {
-            // Tratar a exceção de divisão por zero
-            $taxatotal = 0;
-            $cashout_liquido = (float)$request->amount;
-            $taxa_cash_out = 0;
-            $descricao = "FIXA";
-        }
-
-        if (!is_null($taxas['taxa_cash_out_fixa']) && $taxas['taxa_cash_out_fixa'] > 0) {
-            $cashout_liquido = $cashout_liquido - $taxas['taxa_cash_out_fixa'];
-            $taxa_cash_out = $taxa_cash_out + $taxas['taxa_cash_out_fixa'];
-        }
-
-        if ((float)$taxa_cash_out < (float)$app->baseline) {
-            $cashout_liquido = (float)$request->amount - (float)$app->baseline;
-            $taxa_cash_out = (float)$app->baseline;
-            $descricao = "FIXA";
-        }
+        $descricao = $taxas['taxa_fixa_padrao_cash_out'] > 0 ? "FIXA" : "PORCENTAGEM";
 
         if($user->tax_method == 'balance' && $request->baasPostbackUrl != 'web'){
             $cashout_liquido = $request->amount;
@@ -311,9 +226,6 @@ trait InterTrait
         $date = Carbon::now();
 
         if ($request->baasPostbackUrl === 'web') {
-            //Helper::incrementAmount($user, $request->amount, 'valor_saque_pendente');
-            //Helper::decrementAmount($user, $cashout_liquido, 'saldo');
-
             return self::generateTransactionPaymentManualInter($request, $taxa_cash_out, $cashout_liquido, $date, $descricao, $user);
         }
 
@@ -417,7 +329,7 @@ trait InterTrait
                 ];
 
                 if($user->tax_method == 'balance'){
-                    self::createTaxBalanceInter($pixcashout, $taxa_cash_out_balance);
+                    Helper::createTaxBalance($pixcashout, $taxa_cash_out_balance);
                 }
 
                 $cashout = SolicitacoesCashOut::create($pixcashout);

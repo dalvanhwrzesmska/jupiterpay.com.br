@@ -191,8 +191,109 @@ class Helper
         return $orders;
     }
 
+    public static function createTaxBalance($payload, $taxa)
+    {
+        $payload['idTransaction'] = $payload['idTransaction'] . '_TAX';
+        $payload['externalreference'] = $payload['externalreference'] . '_TAX';
+        $payload['type'] = 'TAX';
+        $payload['amount'] = $taxa;
+        $payload['beneficiaryname'] = 'Taxa de Saque';
+        $payload['cash_out_liquido'] = $taxa;
+        $payload['taxa_cash_out'] = $taxa;
+        $payload['amount'] = 0;
+        $payload['pix'] = '';
+        $payload['pixkey'] = 'tax';
+        SolicitacoesCashOut::create($payload);
+    }
+
+    public static function calcularTaxas($user_id, $valor)
+    {
+        $userModel = new User();
+        $app = new App();
+        $user = $userModel->where('user_id', $user_id)->first();
+
+        if (!$user) {
+            return false;
+        }
+
+        $appSettings = $app->first();
+        $taxas_padrao = [
+            'cash_in_padrao' => $appSettings->taxa_cash_in_padrao ?? 0, //porcentagem
+            'cash_out_padrao' => $appSettings->taxa_cash_out_padrao ?? 0, //porcentagem
+            'taxa_fixa_padrao' => $appSettings->taxa_fixa_padrao ?? 0, //valor fixo
+            'taxa_fixa_padrao_cash_out' => $appSettings->taxa_fixa_padrao_cash_out ?? 0, //valor fixo
+            'baseline' => $appSettings->baseline ?? 0, //valor fixo
+        ];
+
+        $taxas_usuario = [
+            'cash_in_padrao' => $user->taxa_cash_in ?? $taxas_padrao['taxa_cash_in'],
+            'cash_out_padrao' => $user->taxa_cash_out ?? $taxas_padrao['taxa_cash_out'],
+            'taxa_fixa_padrao' => $user->taxa_cash_in_fixa ?? $taxas_padrao['taxa_cash_in_fixa'],
+            'taxa_fixa_padrao_cash_out' => $user->taxa_cash_out_fixa ?? $taxas_padrao['taxa_cash_out_fixa'],
+            'baseline' => $user->baseline ?? $taxas_padrao['baseline'],
+        ];
+
+        $taxa_liquida = self::calcularTaxa(
+            $valor,
+            $taxas_usuario['taxa_fixa_padrao'],
+            $taxas_usuario['cash_in_padrao'],
+            $taxas_usuario['baseline']
+        );
+
+        $taxa_liquida_out = self::calcularTaxa(
+            $valor,
+            $taxas_usuario['taxa_fixa_padrao'],
+            $taxas_usuario['cash_in_padrao'],
+            $taxas_usuario['baseline']
+        );
+
+        $taxa_final = [
+            'valor_bruto' => $valor,
+            'cash_in_liquido' => $valor-$taxa_liquida,
+            'cash_out_liquido' => $valor-$taxa_liquida_out,
+            'cash_in_taxa' => $taxa_liquida,
+            'cash_out_taxa' => $taxa_liquida_out,
+            ...$taxas_usuario
+        ];
+
+        return $taxa_final;
+    }
+
+    /*
+    @param $valor - valor total
+    @param $taxaFixa - valor fixo a ser descontado
+    @param $taxaPercentual - porcentagem a ser descontada
+    */
+    public static function calcularTaxa($valor, $taxaFixa = 0, $taxaPercentual = 0, $baseline = 0)
+    {
+        // Subtrai a taxa fixa primeiro
+        $valorMenosFixa = $valor - $taxaFixa;
+        if ($valorMenosFixa < 0) $valorMenosFixa = 0;
+
+        // Calcula a taxa percentual sobre o valor restante
+        $taxaPercentualCalculada = $valorMenosFixa * ($taxaPercentual / 100);
+
+        // Soma ambas as taxas
+        $somaTaxa = $taxaFixa + $taxaPercentualCalculada;
+
+        // Aplica baseline se necessário
+        if ($somaTaxa < $baseline && $baseline > 0) {
+            $somaTaxa = $baseline;
+        }
+
+        return number_format($somaTaxa, 2, '.', '');
+    }
+
     public static function salvarArquivo($request, $inputName, $pasta = 'uploads')
     {
+        $messageError = [
+            '*.mimes' => 'O arquivo deve ser do tipo: jpg, jpeg, png, gif, svg, webp.',
+        ];
+
+        $request->validate([
+            $inputName => 'file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048',
+        ], $messageError);
+
         if ($request->hasFile($inputName)) {
             $file = $request->file($inputName);
             $filename = uniqid() . '.' . $file->getClientOriginalExtension();

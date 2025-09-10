@@ -26,6 +26,10 @@ class EnviarDocControlller extends Controller
     {
         //dd($request);
         try {
+            $messageError = [
+                '*.mimes' => 'O arquivo deve ser do tipo: jpg,jpeg,png,pdf,doc,docx.',
+            ];
+
             $request->validate([
                 'data_nascimento' => 'required',
                 'cpf_cnpj' => 'required|string',
@@ -37,10 +41,10 @@ class EnviarDocControlller extends Controller
                 'cidade' => 'required|string',
                 'estado' => 'required|string',
                 'media_faturamento' => 'required|string',
-                'foto_rg_frente' => 'required|mimes:jpeg,png,jpg,gif,svg,webp',
-                'foto_rg_verso' => 'required|mimes:jpeg,png,jpg,gif,svg,webp',
-                'selfie_rg' => 'required|mimes:jpeg,png,jpg,gif,svg,webp',
-            ]);
+                'foto_rg_frente' => 'required|mimes:jpg,jpeg,png,pdf,doc,docx',
+                'foto_rg_verso' => 'required|mimes:jpg,jpeg,png,pdf,doc,docx',
+                'selfie_rg' => 'required|mimes:jpg,jpeg,png,pdf,doc,docx',
+            ], $messageError);
 
             $path = uniqid();
             $fotoRgFrente = self::salvarArquivo($request, 'foto_rg_frente', $path);
