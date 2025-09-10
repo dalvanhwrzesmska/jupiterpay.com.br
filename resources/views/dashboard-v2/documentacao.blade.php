@@ -279,7 +279,8 @@
     "baasPostbackUrl": "url_callback",
     "amount": 100.00,
     "pixKey": "chave_pix",
-    "pixKeyType": "cpf"
+    "pixKeyType": "cpf",
+    "beneficiaryName": "Nome do Beneficiário"
   }</code></pre>
             </div>
           </div>

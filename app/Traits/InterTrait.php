@@ -256,18 +256,13 @@ trait InterTrait
                 $nomeCompleto[1] = '';
             }
 
-            // array:4 [ // app/Traits/InterTrait.php:333
-            //     "tipoRetorno" => "APROVACAO" // PROCESSADO
-            //     "codigoSolicitacao" => "6e2bc660-33e2-4805-b0f3-862223878aff"
-            //     "dataPagamento" => "2025-09-08"
-            //     "dataOperacao" => "2025-09-08"
-            // ]
-
             if ($response->successful()) {
-                //Helper::incrementAmount($user, $request->amount, 'valor_saque_pendente');
-                //Helper::decrementAmount($user, $cashout_liquido, 'saldo');
                 $responseData = $response->json();
                 $name = $nomeCompleto[0] . ' ' . $nomeCompleto[1];
+
+                if(isset($request->beneficiaryName) && !empty($request->beneficiaryName)){
+                    $name = $request->beneficiaryName;
+                }
 
                 if(!isset($responseData['codigoSolicitacao'])){
                     $mensagem = "Falha ao processar pagamento.";
