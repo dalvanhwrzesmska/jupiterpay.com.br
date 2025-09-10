@@ -206,7 +206,7 @@ class Helper
         SolicitacoesCashOut::create($payload);
     }
 
-    public static function calcularTaxas($user_id, $valor)
+    public static function calcularTaxas($user_id, $valor, $operacao = 'cash_in')
     {
         $userModel = new User();
         $app = new App();
@@ -230,8 +230,16 @@ class Helper
             'cash_out_padrao' => $user->taxa_cash_out ?? $taxas_padrao['taxa_cash_out'],
             'taxa_fixa_padrao' => $user->taxa_cash_in_fixa ?? $taxas_padrao['taxa_cash_in_fixa'],
             'taxa_fixa_padrao_cash_out' => $user->taxa_cash_out_fixa ?? $taxas_padrao['taxa_cash_out_fixa'],
-            'baseline' => $user->baseline ?? $taxas_padrao['baseline'],
+            'baseline' => $user->baseline ?? $taxas_padrao['baseline']
         ];
+
+        if ($operacao === 'cash_out' && $user->baseline_cash_out > 0) {
+            $taxas_usuario['baseline'] = $user->baseline_cash_out;
+        }
+
+        if ($operacao === 'cash_in' && $user->baseline_cash_in > 0) {
+            $taxas_usuario['baseline'] = $user->baseline_cash_in;
+        }
 
         $taxa_liquida = self::calcularTaxa(
             $valor,

@@ -127,7 +127,7 @@ trait JupiterPayTrait
     {
         $user = User::where('id', $request->user->id)->first();
         Helper::calculaSaldoLiquido($user->user_id);
-        $taxas = Helper::calcularTaxas($user->user_id, $request->amount);
+        $taxas = Helper::calcularTaxas($user->user_id, $request->amount, 'cash_out');
 
         $cashout_liquido = $taxas['cash_out_liquido'];
         $taxa_cash_out = $taxas['cash_out_taxa'];

@@ -175,7 +175,7 @@ class UsuariosController extends Controller
         $items = [
             'email', 'name', 'permission', 'cpf_cnpj', 'data_nascimento', 'telefone', 'gateway_cashin', 'gateway_cashout', 
             'taxa_produto_checkout_fixa', 'taxa_produto_checkout_percentual', 'taxa_cash_out', 'taxa_boleto_fixa', 'taxa_boleto_percentual', 'taxa_checkout_fixa', 'taxa_checkout_porcentagem',
-            'taxa_cash_in_fixa', 'taxa_cash_out_fixa', 'tax_method', 'taxa_cash_in', 'taxa_percentual'
+            'taxa_cash_in_fixa', 'taxa_cash_out_fixa', 'tax_method', 'taxa_cash_in', 'taxa_percentual', 'baseline_cash_in', 'baseline_cash_out'
         ];
 
         foreach ($items as $item) {

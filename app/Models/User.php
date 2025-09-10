@@ -95,7 +95,9 @@ class User extends Authenticatable
         "secret_2fa",
         "taxa_cash_in_fixa",
         "taxa_cash_out_fixa",
-        "tax_method"
+        "tax_method",
+        "baseline_cash_in",
+        "baseline_cash_out"
     ];
 
     /**

@@ -344,6 +344,14 @@
                                     <label for="editTaxaCashOutFixa-{{ $user->id }}" class="form-label fw-semibold">Taxa Saque (R$)</label>
                                     <input type="text" value="{{ $user->taxa_cash_out_fixa }}" class="form-control rounded-pill" id="editTaxaCashOutFixa-{{ $user->id }}" name="taxa_cash_out_fixa">
                                 </div>
+                                <div class="mb-3 col-md-4">
+                                    <label for="editTaxaCashInBase-{{ $user->id }}" class="form-label fw-semibold">Baseline Entrada (R$)</label>
+                                    <input type="text" value="{{ $user->baseline_cash_in }}" class="form-control rounded-pill" id="editTaxaCashInBase-{{ $user->id }}" name="baseline_cash_in">
+                                </div>
+                                <div class="mb-3 col-md-4">
+                                    <label for="editTaxaCashOutBase-{{ $user->id }}" class="form-label fw-semibold">Baseline Saída (R$)</label>
+                                    <input type="text" value="{{ $user->baseline_cash_out }}" class="form-control rounded-pill" id="editTaxaCashOutBase-{{ $user->id }}" name="baseline_cash_out">
+                                </div>
                                 <div class="col-12"><hr></div>
                                 <div class="col-12">
                                     <h6 class="fw-bold text-primary mb-2">Taxas Boleto</h6>
