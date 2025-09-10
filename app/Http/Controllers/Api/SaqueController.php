@@ -34,7 +34,7 @@ class SaqueController extends Controller
                 'secret' =>    ['required', 'string'],
                 'amount' =>    ['required'],
                 'pixKey' => ['required', 'string'],
-                'pixKeyType' =>    ['required', 'string', 'in:cpf,email,telefone,aleatoria,cnpj'],
+                'pixKeyType' =>    ['required', 'string', 'in:cpf,email,telefone,aleatoria,cnpj,random'],
                 'baasPostbackUrl' =>    ['required', 'string']
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
