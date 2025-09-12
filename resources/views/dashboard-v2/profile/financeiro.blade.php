@@ -157,6 +157,8 @@
                                                         </div>
                                                         @endif
 
+                                                        <input type="hidden" id="nonce" name="nonce" value="{{ bin2hex(random_bytes(16)) }}">
+
                                                         <!-- Exibição do saldo disponível -->
                                                         <div class="mt-4 alert alert-info">
                                                             <ul>
