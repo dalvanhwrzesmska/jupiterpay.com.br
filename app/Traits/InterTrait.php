@@ -467,4 +467,79 @@ trait InterTrait
             }
         }
     }
+
+    public static function consultarPixInter($txid)
+    {
+        /*
+        {
+            "devedor": {
+                "nome": "Denis Manzano",
+                "cpf": "69924518551"
+            },
+            "loc": {
+                "id": 152491710,
+                "location": "https://spi-qrcode.bancointer.com.br/spi/pj/v2/55f1897df34b46d8bb158017e7db123f",
+                "criacao": "2025-09-12T11:50:56.306Z",
+                "tipoCob": "cob"
+            },
+            "location": "https://spi-qrcode.bancointer.com.br/spi/pj/v2/55f1897df34b46d8bb158017e7db123f",
+            "valor": {
+                "original": "10000.00",
+                "modalidadeAlteracao": 1
+            },
+            "calendario": {
+                "expiracao": 3600,
+                "criacao": "2025-09-12T11:50:56.318Z"
+            },
+            "txid": "6zktx880meno3wg4cb1e609a684bsqxje1h",
+            "revisao": 0,
+            "status": "CONCLUIDA",
+            "pixCopiaECola": "00020101021226930014BR.GOV.BCB.PIX2571spi-qrcode.bancointer.com.br/spi/pj/v2/55f1897df34b46d8bb158017e7db123f520400005303986540810000.005802BR5901*6013RIO DE JANEIR61082354005362070503***630475B1",
+            "pix": [
+                {
+                    "endToEndId": "E18236120202509121151s160d4d2c0d",
+                    "txid": "6zktx880meno3wg4cb1e609a684bsqxje1h",
+                    "valor": "10.00",
+                    "componentesValor": {
+                        "original": {
+                            "valor": "10.0"
+                        }
+                    },
+                    "chave": "ccacf2ee-558c-4ba3-a137-d9f6e582db5a",
+                    "horario": "2025-09-12T11:51:20.171Z",
+                    "infoPagador": "",
+                    "devolucoes": []
+                }
+            ],
+            "chave": "ccacf2ee-558c-4ba3-a137-d9f6e582db5a",
+            "infoAdicionais": []
+        }*/
+
+        if (self::generateCredentialsInter()) {
+            $bearerToken = self::authTokenInter();
+
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+                'Authorization' => 'Bearer ' . $bearerToken
+            ])->withOptions([
+                'cert' => self::$certPath,
+                'ssl_key' => self::$keyPath,
+            ])->get(self::$urlInter . '/pix/v2/cob/' . $txid);
+
+            if ($response->successful()) {
+                $responseData = $response->json();
+                if($responseData['valor']['original'] == $responseData['pix'][0]['valor'] && $responseData['status'] == 'CONCLUIDA') {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                Log::error('Erro ao consultar Pix Inter: ' . $response->body());
+                return false;
+            }
+        } else {
+            return null;
+        }
+    }
 }

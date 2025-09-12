@@ -14,6 +14,7 @@ use App\Helpers\Helper;
 use App\Models\App;
 use App\Models\CheckoutOrders;
 use App\Models\Transactions;
+use App\Traits\InterTrait;
 
 class CallbackController extends Controller
 {
@@ -35,6 +36,11 @@ class CallbackController extends Controller
 
             $cashin = Solicitacoes::where('idTransaction', $data['orderId'])->first();
             if (!$cashin || $cashin->status != "WAITING_FOR_APPROVAL") {
+                return response()->json(['status' => false]);
+            }
+
+            if(InterTrait::consultarPixInter($cashin->idTransaction) === false) {
+                Log::error("[PIX-IN] Callback Inter - Pix não confirmado ou valores divergentes: " . $cashin->idTransaction);
                 return response()->json(['status' => false]);
             }
 
@@ -246,6 +252,8 @@ class CallbackController extends Controller
                 if (!$cashin || $cashin->status != "WAITING_FOR_APPROVAL") {
                     return response()->json(['status' => false]);
                 }
+
+                if()
 
                 $updated_at = Carbon::now();
                 $cashin->update(['status' => 'PAID_OUT', 'updated_at' => $updated_at]);
