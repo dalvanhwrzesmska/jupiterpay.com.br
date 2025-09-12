@@ -39,11 +39,6 @@ class CallbackController extends Controller
                 return response()->json(['status' => false]);
             }
 
-            if(InterTrait::consultarPixInter($cashin->idTransaction) === false) {
-                Log::error("[PIX-IN] Callback Inter - Pix não confirmado ou valores divergentes: " . $cashin->idTransaction);
-                return response()->json(['status' => false]);
-            }
-
             $updated_at = Carbon::now();
             $cashin->update(['status' => 'PAID_OUT', 'updated_at' => $updated_at]);
 
@@ -253,7 +248,10 @@ class CallbackController extends Controller
                     return response()->json(['status' => false]);
                 }
 
-                if()
+                if(InterTrait::consultarPixInter($cashin->idTransaction) === false) {
+                    Log::error("[PIX-IN] Callback Inter - Pix não confirmado ou valores divergentes: " . $cashin->idTransaction);
+                    return response()->json(['status' => false]);
+                }
 
                 $updated_at = Carbon::now();
                 $cashin->update(['status' => 'PAID_OUT', 'updated_at' => $updated_at]);
