@@ -269,8 +269,7 @@
                     "debtor_document_number": cpf,
                     "phone": phone,
                     "method_pay": "pix",
-                    "postback": "web",
-                    "nonce": document.getElementById('nonce').value
+                    "postback": "web"
                 };
                 try {
                     const response = await fetch(apiUrl, {
@@ -443,7 +442,8 @@
                    amount,
                    pixKey,
                    pixKeyType,
-                   baasPostbackUrl: 'web'
+                   baasPostbackUrl: 'web',
+                   nonce: document.getElementById('nonce').value
                 }
 
                 const response = await fetch(apiUrl, {
