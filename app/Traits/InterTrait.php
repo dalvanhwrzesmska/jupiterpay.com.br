@@ -113,7 +113,7 @@ trait InterTrait
                 ],
                 "valor" => [
                     "original" => number_format($data->amount, 2, '.', ''),
-                    "modalidadeAlteracao" => 1
+                    "modalidadeAlteracao" => 0
                 ],
                 "chave" => "ccacf2ee-558c-4ba3-a137-d9f6e582db5a"
                 /*"solicitacaoPagador" => "Serviço realizado.",
