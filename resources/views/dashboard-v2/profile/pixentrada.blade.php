@@ -26,8 +26,8 @@
         <div class="col-sm-6 col-md-4">
             <div class="card overflow-hidden h-100">
                 <div class="card-body position-relative">
-                    <h6 class="mb-1">Transações <span class="badge badge-subtle-warning rounded-pill ms-2">{{ (clone $transactions)->count() }}</span></h6>
-                    <div class="display-4 fs-5 mb-2 fw-normal font-sans-serif text-warning">{{ (clone $transactions)->count() }}</div>
+                    <h6 class="mb-1">Transações <span class="badge badge-subtle-warning rounded-pill ms-2">{{ $allTransactions->count() }}</span></h6>
+                    <div class="display-4 fs-5 mb-2 fw-normal font-sans-serif text-warning">{{ $allTransactions->count() }}</div>
                     <span class="fw-semi-bold fs-10 text-nowrap">Total de transações</span>
                 </div>
             </div>
@@ -35,8 +35,8 @@
         <div class="col-sm-6 col-md-4">
             <div class="card overflow-hidden h-100">
                 <div class="card-body position-relative">
-                    <h6 class="mb-1">Faturamento <span class="badge badge-subtle-info rounded-pill ms-2">R$ {{ number_format((clone $transactions)->where('status', 'PAID_OUT')->sum('amount'), 2, ',', '.') }}</span></h6>
-                    <div class="display-4 fs-5 mb-2 fw-normal font-sans-serif text-info">R$ {{ number_format((clone $transactions)->where('status', 'PAID_OUT')->sum('amount'), 2, ',', '.') }}</div>
+                    <h6 class="mb-1">Faturamento <span class="badge badge-subtle-info rounded-pill ms-2">R$ {{ number_format($allTransactions->where('status', 'PAID_OUT')->sum('amount'), 2, ',', '.') }}</span></h6>
+                    <div class="display-4 fs-5 mb-2 fw-normal font-sans-serif text-info">R$ {{ number_format($allTransactions->where('status', 'PAID_OUT')->sum('amount'), 2, ',', '.') }}</div>
                     <span class="fw-semi-bold fs-10 text-nowrap">Valor bruto</span>
                 </div>
             </div>
@@ -46,14 +46,14 @@
                 <div class="card-body position-relative">
                     @php
                         $ticketMedio = 0;
-                        $totalTransacoesFiltradas = (clone $transactions)->where('status', 'PAID_OUT')->count();
+                        $totalTransacoesFiltradas = $allTransactions->where('status', 'PAID_OUT')->count();
                         if ($totalTransacoesFiltradas > 0) {
-                            $somaDepositoLiquido = (clone $transactions)->where('status', 'PAID_OUT')->sum('amount');
+                            $somaDepositoLiquido = $allTransactions->where('status', 'PAID_OUT')->sum('amount');
                             $ticketMedio = $somaDepositoLiquido / $totalTransacoesFiltradas;
                         }
                     @endphp
-                    <h6 class="mb-1">Valor Líquido <span class="badge badge-subtle-success rounded-pill ms-2">R$ {{ number_format((clone $transactions)->where('status', 'PAID_OUT')->sum('deposito_liquido'), 2, ',', '.') }}</span></h6>
-                    <div class="display-4 fs-5 mb-2 fw-normal font-sans-serif">R$ {{ number_format((clone $transactions)->where('status', 'PAID_OUT')->sum('deposito_liquido'), 2, ',', '.') }}</div>
+                    <h6 class="mb-1">Valor Líquido <span class="badge badge-subtle-success rounded-pill ms-2">R$ {{ number_format($allTransactions->where('status', 'PAID_OUT')->sum('deposito_liquido'), 2, ',', '.') }}</span></h6>
+                    <div class="display-4 fs-5 mb-2 fw-normal font-sans-serif">R$ {{ number_format($allTransactions->where('status', 'PAID_OUT')->sum('deposito_liquido'), 2, ',', '.') }}</div>
                     <span class="fw-semi-bold fs-10 text-nowrap">Ticket médio: R$ {{ number_format($ticketMedio, 2, ',', '.') }}</span>
                 </div>
             </div>
@@ -115,6 +115,69 @@
                 </table>
             </div>
         </div>
+        @if($totalPages > 1)
+        <div class="card-footer bg-body-tertiary py-3">
+            <div class="row justify-content-between align-items-center">
+                <div class="col-auto">
+                    <span class="text-muted">Mostrando {{ count($transactions) }} de {{ $totalRecords }} resultados</span>
+                </div>
+                <div class="col-auto">
+                    <nav aria-label="Navegação da paginação">
+                        <ul class="pagination pagination-sm mb-0">
+                            @if($page > 1)
+                            <li class="page-item">
+                                <a class="page-link" href="{{ route('profile.relatorio.pixentrada.v2') }}?page={{ $page - 1 }}&periodo={{ $periodo ?? '' }}&buscar={{ $buscar ?? '' }}">
+                                    <span class="fas fa-chevron-left"></span>
+                                </a>
+                            </li>
+                            @endif
+                            
+                            @php
+                                $start = max(1, $page - 2);
+                                $end = min($totalPages, $page + 2);
+                            @endphp
+                            
+                            @if($start > 1)
+                            <li class="page-item">
+                                <a class="page-link" href="{{ route('profile.relatorio.pixentrada.v2') }}?page=1&periodo={{ $periodo ?? '' }}&buscar={{ $buscar ?? '' }}">1</a>
+                            </li>
+                            @if($start > 2)
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                            @endif
+                            @endif
+                            
+                            @for($i = $start; $i <= $end; $i++)
+                            <li class="page-item {{ $i == $page ? 'active' : '' }}">
+                                <a class="page-link" href="{{ route('profile.relatorio.pixentrada.v2') }}?page={{ $i }}&periodo={{ $periodo ?? '' }}&buscar={{ $buscar ?? '' }}">{{ $i }}</a>
+                            </li>
+                            @endfor
+                            
+                            @if($end < $totalPages)
+                            @if($end < $totalPages - 1)
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                            @endif
+                            <li class="page-item">
+                                <a class="page-link" href="{{ route('profile.relatorio.pixentrada.v2') }}?page={{ $totalPages }}&periodo={{ $periodo ?? '' }}&buscar={{ $buscar ?? '' }}">{{ $totalPages }}</a>
+                            </li>
+                            @endif
+                            
+                            @if($page < $totalPages)
+                            <li class="page-item">
+                                <a class="page-link" href="{{ route('profile.relatorio.pixentrada.v2') }}?page={{ $page + 1 }}&periodo={{ $periodo ?? '' }}&buscar={{ $buscar ?? '' }}">
+                                    <span class="fas fa-chevron-right"></span>
+                                </a>
+                            </li>
+                            @endif
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        @endif
     </div>
 </div>
 @endsection

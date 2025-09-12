@@ -27,7 +27,7 @@
             <div class="card overflow-hidden h-100">
                 <div class="card-body position-relative">
                     <h6 class="mb-1">Transações</h6>
-                    <div class="display-4 fs-5 mb-2 fw-normal font-sans-serif text-warning">{{ (clone $transactions)->count() }}</div>
+                    <div class="display-4 fs-5 mb-2 fw-normal font-sans-serif text-warning">{{ $allTransactions->count() }}</div>
                     <span class="fw-semi-bold fs-10 text-nowrap">R$ 0,00</span>
                 </div>
             </div>
@@ -36,7 +36,7 @@
             <div class="card overflow-hidden h-100">
                 <div class="card-body position-relative">
                     <h6 class="mb-1">Saídas Brutas</h6>
-                    <div class="display-4 fs-5 mb-2 fw-normal font-sans-serif text-info">R$ {{ number_format((clone $transactions)->where('status', 'COMPLETED')->sum('amount'), 2, ',', '.') }}</div>
+                    <div class="display-4 fs-5 mb-2 fw-normal font-sans-serif text-info">R$ {{ number_format($allTransactions->where('status', 'COMPLETED')->sum('amount'), 2, ',', '.') }}</div>
                     <span class="fw-semi-bold fs-10 text-nowrap">R$ 0,00</span>
                 </div>
             </div>
@@ -45,7 +45,7 @@
             <div class="card overflow-hidden h-100">
                 <div class="card-body position-relative">
                     <h6 class="mb-1">Saídas Líquidas</h6>
-                    <div class="display-4 fs-5 mb-2 fw-normal font-sans-serif text-info">R$ {{ number_format((clone $transactions)->where('status', 'COMPLETED')->sum('cash_out_liquido'), 2, ',', '.') }}</div>
+                    <div class="display-4 fs-5 mb-2 fw-normal font-sans-serif text-info">R$ {{ number_format($allTransactions->where('status', 'COMPLETED')->sum('cash_out_liquido'), 2, ',', '.') }}</div>
                     <span class="fw-semi-bold fs-10 text-nowrap">R$ 0,00</span>
                 </div>
             </div>
@@ -55,9 +55,9 @@
                 <div class="card-body position-relative">
                     @php
                         $ticketMedio = 0;
-                        $totalTransacoesFiltradas = (clone $transactions)->where('status', 'PENDING')->count();
+                        $totalTransacoesFiltradas = $allTransactions->where('status', 'PENDING')->count();
                         if ($totalTransacoesFiltradas > 0) {
-                            $somaSaqueLiquido = (clone $transactions)->where('status', 'PENDING')->sum('cash_out_liquido');
+                            $somaSaqueLiquido = $allTransactions->where('status', 'PENDING')->sum('cash_out_liquido');
                             $ticketMedio = $somaSaqueLiquido / $totalTransacoesFiltradas;
                         }
                     @endphp
@@ -124,6 +124,69 @@
                 </table>
             </div>
         </div>
+        @if($totalPages > 1)
+        <div class="card-footer bg-body-tertiary py-3">
+            <div class="row justify-content-between align-items-center">
+                <div class="col-auto">
+                    <span class="text-muted">Mostrando {{ count($transactions) }} de {{ $totalRecords }} resultados</span>
+                </div>
+                <div class="col-auto">
+                    <nav aria-label="Navegação da paginação">
+                        <ul class="pagination pagination-sm mb-0">
+                            @if($page > 1)
+                            <li class="page-item">
+                                <a class="page-link" href="{{ route('profile.relatorio.pixsaida.v2') }}?page={{ $page - 1 }}&periodo={{ $periodo ?? '' }}&buscar={{ $buscar ?? '' }}">
+                                    <span class="fas fa-chevron-left"></span>
+                                </a>
+                            </li>
+                            @endif
+                            
+                            @php
+                                $start = max(1, $page - 2);
+                                $end = min($totalPages, $page + 2);
+                            @endphp
+                            
+                            @if($start > 1)
+                            <li class="page-item">
+                                <a class="page-link" href="{{ route('profile.relatorio.pixsaida.v2') }}?page=1&periodo={{ $periodo ?? '' }}&buscar={{ $buscar ?? '' }}">1</a>
+                            </li>
+                            @if($start > 2)
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                            @endif
+                            @endif
+                            
+                            @for($i = $start; $i <= $end; $i++)
+                            <li class="page-item {{ $i == $page ? 'active' : '' }}">
+                                <a class="page-link" href="{{ route('profile.relatorio.pixsaida.v2') }}?page={{ $i }}&periodo={{ $periodo ?? '' }}&buscar={{ $buscar ?? '' }}">{{ $i }}</a>
+                            </li>
+                            @endfor
+                            
+                            @if($end < $totalPages)
+                            @if($end < $totalPages - 1)
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                            @endif
+                            <li class="page-item">
+                                <a class="page-link" href="{{ route('profile.relatorio.pixsaida.v2') }}?page={{ $totalPages }}&periodo={{ $periodo ?? '' }}&buscar={{ $buscar ?? '' }}">{{ $totalPages }}</a>
+                            </li>
+                            @endif
+                            
+                            @if($page < $totalPages)
+                            <li class="page-item">
+                                <a class="page-link" href="{{ route('profile.relatorio.pixsaida.v2') }}?page={{ $page + 1 }}&periodo={{ $periodo ?? '' }}&buscar={{ $buscar ?? '' }}">
+                                    <span class="fas fa-chevron-right"></span>
+                                </a>
+                            </li>
+                            @endif
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        @endif
     </div>
 </div>
 @endsection

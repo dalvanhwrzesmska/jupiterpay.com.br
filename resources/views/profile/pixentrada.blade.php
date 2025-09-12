@@ -135,7 +135,7 @@
                         <div class="card card-raised highlight-card h-100">
                             <div class="card-body px-4 py-3 d-flex align-items-center justify-content-between">
                                 <div>
-                                    <div class="display-6 fw-bold text-success">{{ (clone $transactions)->count() }}</div>
+                                    <div class="display-6 fw-bold text-success">{{ $allTransactions->count() }}</div>
                                     <div class="text-muted">Transações</div>
                                 </div>
                                 <div class="icon-circle bg-info text-white"><i class="fa-solid fa-sync"></i></div>
@@ -146,7 +146,7 @@
                         <div class="card card-raised highlight-card h-100">
                             <div class="card-body px-4 py-3 d-flex align-items-center justify-content-between">
                                 <div>
-                                    <div class="display-6 fw-bold text-primary">R$ {{ number_format((clone $transactions)->sum('amount'), '2',',','.') }}</div>
+                                    <div class="display-6 fw-bold text-primary">R$ {{ number_format($allTransactions->sum('amount'), '2',',','.') }}</div>
                                     <div class="text-muted">Faturamento</div>
                                 </div>
                                 <div class="icon-circle bg-primary text-white"><i class="fa-solid fa-arrow-down-short-wide"></i></div>
@@ -157,7 +157,7 @@
                         <div class="card card-raised highlight-card h-100">
                             <div class="card-body px-4 py-3 d-flex align-items-center justify-content-between">
                                 <div>
-                                    <div class="display-6 fw-bold text-info">R$ {{ number_format((clone $transactions)->sum('deposito_liquido'), '2',',','.') }}</div>
+                                    <div class="display-6 fw-bold text-info">R$ {{ number_format($allTransactions->sum('deposito_liquido'), '2',',','.') }}</div>
                                     <div class="text-muted">Valor líquido</div>
                                 </div>
                                 <div class="icon-circle bg-info text-white"><i class="fa-solid fa-dollar-sign"></i></div>
@@ -170,9 +170,9 @@
                                 <div>
                                     @php
                                     $ticketMedio = 0;
-                                    $totalTransacoesFiltradas = (clone $transactions)->count();
+                                    $totalTransacoesFiltradas = $allTransactions->count();
                                     if ($totalTransacoesFiltradas > 0) {
-                                        $somaDepositoLiquido = (clone $transactions)->sum('deposito_liquido');
+                                        $somaDepositoLiquido = $allTransactions->sum('deposito_liquido');
                                         $ticketMedio = $somaDepositoLiquido / $totalTransacoesFiltradas;
                                     }
                                     @endphp
@@ -240,6 +240,69 @@
                                     @endforelse
                                 </tbody>
                             </table>
+                            @if($totalPages > 1)
+                            <div class="px-4 py-3 bg-light rounded-bottom">
+                                <div class="row justify-content-between align-items-center">
+                                    <div class="col-auto">
+                                        <span class="text-muted">Mostrando {{ count($transactions) }} de {{ $totalRecords }} resultados</span>
+                                    </div>
+                                    <div class="col-auto">
+                                        <nav aria-label="Navegação da paginação">
+                                            <ul class="pagination pagination-sm mb-0">
+                                                @if($page > 1)
+                                                <li class="page-item">
+                                                    <a class="page-link" href="{{ route('profile.relatorio.pixentrada') }}?page={{ $page - 1 }}&periodo={{ $periodo ?? '' }}&buscar={{ $buscar ?? '' }}">
+                                                        <span class="fas fa-chevron-left"></span>
+                                                    </a>
+                                                </li>
+                                                @endif
+                                                
+                                                @php
+                                                    $start = max(1, $page - 2);
+                                                    $end = min($totalPages, $page + 2);
+                                                @endphp
+                                                
+                                                @if($start > 1)
+                                                <li class="page-item">
+                                                    <a class="page-link" href="{{ route('profile.relatorio.pixentrada') }}?page=1&periodo={{ $periodo ?? '' }}&buscar={{ $buscar ?? '' }}">1</a>
+                                                </li>
+                                                @if($start > 2)
+                                                <li class="page-item disabled">
+                                                    <span class="page-link">...</span>
+                                                </li>
+                                                @endif
+                                                @endif
+                                                
+                                                @for($i = $start; $i <= $end; $i++)
+                                                <li class="page-item {{ $i == $page ? 'active' : '' }}">
+                                                    <a class="page-link" href="{{ route('profile.relatorio.pixentrada') }}?page={{ $i }}&periodo={{ $periodo ?? '' }}&buscar={{ $buscar ?? '' }}">{{ $i }}</a>
+                                                </li>
+                                                @endfor
+                                                
+                                                @if($end < $totalPages)
+                                                @if($end < $totalPages - 1)
+                                                <li class="page-item disabled">
+                                                    <span class="page-link">...</span>
+                                                </li>
+                                                @endif
+                                                <li class="page-item">
+                                                    <a class="page-link" href="{{ route('profile.relatorio.pixentrada') }}?page={{ $totalPages }}&periodo={{ $periodo ?? '' }}&buscar={{ $buscar ?? '' }}">{{ $totalPages }}</a>
+                                                </li>
+                                                @endif
+                                                
+                                                @if($page < $totalPages)
+                                                <li class="page-item">
+                                                    <a class="page-link" href="{{ route('profile.relatorio.pixentrada') }}?page={{ $page + 1 }}&periodo={{ $periodo ?? '' }}&buscar={{ $buscar ?? '' }}">
+                                                        <span class="fas fa-chevron-right"></span>
+                                                    </a>
+                                                </li>
+                                                @endif
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
                         </div>
                     </div>
                 </div>

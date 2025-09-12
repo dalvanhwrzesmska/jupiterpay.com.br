@@ -58,6 +58,11 @@ class RelatoriosControlller extends Controller
                 break;
         }
     
+        // Configurações de paginação
+        $limit = 20; // Número de registros por página
+        $page = $request->input('page', 1); // Página atual
+        $offset = ($page - 1) * $limit;
+    
         $query = DB::table('solicitacoes')
             ->where('user_id', $userId);
     
@@ -78,9 +83,19 @@ class RelatoriosControlller extends Controller
                 }
             });
         }
+
+        // Consulta para os totais (sem paginação)
+        $allTransactions = (clone $query)->get();
+        
+        // Consulta para obter o número total de registros
+        $totalRecords = $query->count();
+        $totalPages = ceil($totalRecords / $limit);
     
+        // Consulta com paginação
         $transactions = $query
             ->orderByDesc('date')
+            ->offset($offset)
+            ->limit($limit)
             ->get();
     
         $ver = $request->segment(1);
@@ -88,7 +103,7 @@ class RelatoriosControlller extends Controller
             ? 'dashboard-v2.profile.pixentrada'
             : 'profile.pixentrada';
     
-        return view($viewName, compact('transactions'));
+        return view($viewName, compact('transactions', 'allTransactions', 'totalPages', 'page', 'periodo', 'buscar', 'totalRecords'));
     }
     
     public function pixsaida(Request $request)
@@ -153,6 +168,11 @@ class RelatoriosControlller extends Controller
                 break;
         }
     
+        // Configurações de paginação
+        $limit = 20; // Número de registros por página
+        $page = $request->input('page', 1); // Página atual
+        $offset = ($page - 1) * $limit;
+    
         $query = DB::table('solicitacoes_cash_out')
             ->where('user_id', $userId);
     
@@ -172,9 +192,19 @@ class RelatoriosControlller extends Controller
                 }
             });
         }
+
+        // Consulta para os totais (sem paginação)
+        $allTransactions = (clone $query)->get();
+        
+        // Consulta para obter o número total de registros
+        $totalRecords = $query->count();
+        $totalPages = ceil($totalRecords / $limit);
     
+        // Consulta com paginação
         $transactions = $query
             ->orderByDesc('date')
+            ->offset($offset)
+            ->limit($limit)
             ->get();
     
         $ver = $request->segment(1);
@@ -182,7 +212,7 @@ class RelatoriosControlller extends Controller
             ? 'dashboard-v2.profile.pixsaida'
             : 'profile.pixsaida';
     
-        return view($viewName, compact('transactions'));
+        return view($viewName, compact('transactions', 'allTransactions', 'totalPages', 'page', 'periodo', 'buscar', 'totalRecords'));
     }
 
     public function consulta(Request $request)
