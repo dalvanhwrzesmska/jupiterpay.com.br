@@ -233,11 +233,11 @@ class Helper
             'baseline' => $user->baseline ?? $taxas_padrao['baseline']
         ];
 
-        if ($operacao === 'cash_out' && $user->baseline_cash_out > 0) {
+        if ($operacao == 'cash_out' && $user->baseline_cash_out > 0) {
             $taxas_usuario['baseline'] = $user->baseline_cash_out;
         }
 
-        if ($operacao === 'cash_in' && $user->baseline_cash_in > 0) {
+        if ($operacao == 'cash_in' && $user->baseline_cash_in > 0) {
             $taxas_usuario['baseline'] = $user->baseline_cash_in;
         }
 
@@ -250,8 +250,8 @@ class Helper
 
         $taxa_liquida_out = self::calcularTaxa(
             $valor,
-            $taxas_usuario['taxa_fixa_padrao'],
-            $taxas_usuario['cash_in_padrao'],
+            $taxas_usuario['taxa_fixa_padrao_cash_out'],
+            $taxas_usuario['cash_out_padrao'],
             $taxas_usuario['baseline']
         );
 

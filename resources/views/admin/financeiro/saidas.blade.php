@@ -141,8 +141,8 @@
                                         <tr>
                                             <td>{{ $cashOut->user_id }}</td>
                                             <td>{{ $cashOut->externalreference }}</td>
-                                            <td>{{ number_format($cashOut->cash_out_liquido, 2, ',', '.') }}</td>
                                             <td>{{ number_format($cashOut->amount, 2, ',', '.') }}</td>
+                                            <td>{{ number_format($cashOut->cash_out_liquido, 2, ',', '.') }}</td>
                                             <td>
                                                 @switch($cashOut->status)
                                                 @case('COMPLETED')
@@ -162,7 +162,7 @@
                                             <td>{{ $cashOut->beneficiarydocument }}</td>
                                             <td>{{ $cashOut->pixkey }}</td>
                                             <td>{{ \Carbon\Carbon::parse($cashOut->date)->format('d/m/Y \à\s H:i:s') }}</td>
-                                            <td> R$ {{ number_format((float)$cashOut->cash_out_liquido - (float)$cashOut->amount, '2', ',', '.') }}</td>
+                                            <td> R$ {{ number_format((float)$cashOut->amount - (float)$cashOut->cash_out_liquido, '2', ',', '.') }}</td>
                                         </tr>
                                         @empty
                                         <tr>
