@@ -258,10 +258,13 @@ class Helper
         $taxa_final = [
             'valor_bruto' => $valor,
             'cash_in_liquido' => $valor-$taxa_liquida,
-            'cash_out_liquido' => $valor-$taxa_liquida_out,
             'cash_in_taxa' => $taxa_liquida,
+            'cash_out_liquido' => $valor-$taxa_liquida_out,
             'cash_out_taxa' => $taxa_liquida_out,
-            ...$taxas_usuario
+
+            'cash_in_padrao' => $taxas_usuario['cash_in_padrao'],
+            'taxa_fixa_padrao' => $taxas_usuario['cash_out_padrao'],
+            'taxa_fixa_padrao_cash_out' => $taxas_usuario['taxa_fixa_padrao_cash_out'],
         ];
 
         return $taxa_final;
