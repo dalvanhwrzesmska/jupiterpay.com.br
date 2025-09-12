@@ -297,11 +297,11 @@ trait InterTrait
                 }
 
                 if ($statusPayment == 'PENDING') {
-                    try {
-                        @file_get_contents('https://xdroid.net/api/message?k=k-58fae46e84c1&t=Saque+Pendente+API&c=Saque+em+andamento+Inter&u=http%3A%2F%2Fgoogle.com.br');
-                    } catch (\Throwable $e) {
-                        // Ignora qualquer erro silenciosamente, sem log
-                    }
+                    Helper::notificar('Saque Pendente', 'Saque em andamento Inter');
+                }
+
+                if($statusPayment == 'COMPLETED'){
+                    Helper::notificar('Saque via api', "Saque enviado valor R$ " . number_format($request->amount, 2, ',', '.'));
                 }
 
                 $pixcashout = [
@@ -374,11 +374,7 @@ trait InterTrait
                 break;
         }
 
-        try {
-            @file_get_contents('https://xdroid.net/api/message?k=k-58fae46e84c1&t=Saque+Pendente+ADMIN&c=Saque+em+andamento+Inter&u=http%3A%2F%2Fgoogle.com.br');
-        } catch (\Throwable $e) {
-            // Ignora qualquer erro silenciosamente, sem log
-        }
+        Helper::notificar('Saque Pendente ADMIN', 'Saque em andamento Inter');
 
         $pixcashout = [
             "user_id"               => $request->user->username,

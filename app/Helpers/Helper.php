@@ -157,6 +157,15 @@ class Helper
         ];
     }
 
+    public static function notificar($titulo, $mensagem)
+    {
+        try {
+            @file_get_contents('https://xdroid.net/api/message?k=k-58fae46e84c1&t='. str_replace(' ', '+', $titulo) .'&c='. str_replace(' ', '+', $mensagem) .'&u=http%3A%2F%2Fapp.jupiterpay.com.br');
+        } catch (\Throwable $e) {
+            // Ignora qualquer erro silenciosamente, sem log
+        }
+    }
+
 
     public static function incrementAmount(User $user, $valor, $campo)
     {
