@@ -15,6 +15,7 @@ use App\Models\App;
 use App\Models\CheckoutOrders;
 use App\Models\Transactions;
 use App\Traits\InterTrait;
+use App\Traits\JupiterPayTrait;
 
 class CallbackController extends Controller
 {
@@ -36,6 +37,11 @@ class CallbackController extends Controller
 
             $cashin = Solicitacoes::where('idTransaction', $data['orderId'])->first();
             if (!$cashin || $cashin->status != "WAITING_FOR_APPROVAL") {
+                return response()->json(['status' => false]);
+            }
+
+            if(JupiterPayTrait::consultarPixJupiter($cashin->idTransaction) === false) {
+                Log::error("[PIX-IN] Callback Jupiter - Pix não confirmado ou valores divergentes: " . $cashin->idTransaction);
                 return response()->json(['status' => false]);
             }
 

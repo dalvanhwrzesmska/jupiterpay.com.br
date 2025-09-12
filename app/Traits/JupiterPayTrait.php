@@ -325,4 +325,30 @@ trait JupiterPayTrait
             }
         }
     }
+
+    public static function consultarPixJupiter($idTransaction)
+    {
+        if (self::generateCredentialsJupiter()) {
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json'
+            ])->post('https://api.jupiterpay.com.br/v1/search/txid/', [
+                'api-key' => 'f1d78a80afab2a4c1e3dda0f',
+                "txid" => $idTransaction
+            ]);
+
+            if ($response->successful()) {
+                $responseData = $response->json();
+                if (isset($responseData['status']) && $responseData['status'] == 'paid') {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
 }
