@@ -280,7 +280,8 @@
     "amount": 100.00,
     "pixKey": "chave_pix",
     "pixKeyType": "cpf",
-    "beneficiaryName": "Nome do Beneficiário"
+    "beneficiaryName": "Nome do Beneficiário",
+    "nonce": "a1b2c3d4e5f6g7h8" // Deve ser único para cada requisição
   }</code></pre>
             </div>
           </div>

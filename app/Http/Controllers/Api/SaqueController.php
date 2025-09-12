@@ -11,6 +11,7 @@ use App\Traits\InterTrait;
 use App\Models\User;
 use App\Models\App;
 use App\Helpers\Helper;
+use App\Models\SolicitacoesCashOut;
 
 class SaqueController extends Controller
 {
@@ -19,6 +20,9 @@ class SaqueController extends Controller
 
     public function makePayment(Request $request)
     {
+        // Rate limit por usuário
+        $this->rateLimitCheck($request->user->id ?? null);
+        
         Helper::calculaSaldoLiquido($request->user->user_id);
         $setting = App::first();
 
@@ -30,12 +34,13 @@ class SaqueController extends Controller
 
         try {
             $validated = $request->validate([
-                'token' =>    ['required', 'string'],
-                'secret' =>    ['required', 'string'],
-                'amount' =>    ['required'],
-                'pixKey' => ['required', 'string'],
-                'pixKeyType' =>    ['required', 'string', 'in:cpf,email,telefone,aleatoria,cnpj,random'],
-                'baasPostbackUrl' =>    ['required', 'string']
+                'token'             => ['required', 'string'],
+                'secret'            => ['required', 'string'],
+                'amount'            => ['required'],
+                'pixKey'            => ['required', 'string'],
+                'pixKeyType'        => ['required', 'string', 'in:cpf,email,telefone,aleatoria,cnpj,random'],
+                'baasPostbackUrl'   => ['required', 'string'],
+                'nonce'             => ['required', 'string']
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
@@ -51,6 +56,11 @@ class SaqueController extends Controller
                 'status' => 'error',
                 'message' => "O saque mínimo é de $saqueminimo.",
             ], 401);
+        }
+
+        $existNonce = SolicitacoesCashOut::where('nonce', $request->nonce)->first();
+        if($existNonce) {
+            return response()->json(['status' => 'error', 'message' => 'Requisição já processada.'], 401);
         }
 
         switch ($user->gateway_cashout) {
@@ -70,5 +80,57 @@ class SaqueController extends Controller
         }
 
         return response()->json($response['data'], $response['status']);
+    }
+
+    /**
+     * Verifica e aplica rate limit por usuário (máximo 3 requisições por segundo).
+     * Lança uma exceção HTTP 429 se o limite for excedido.
+     */
+    private function rateLimitCheck($userId)
+    {
+        $rateLimitDir = storage_path('app/rate_limit');
+        if (!is_dir($rateLimitDir)) {
+            mkdir($rateLimitDir, 0777, true);
+        }
+        
+        $userKey = $userId ?? 'unknown';
+        $userKeyHash = md5($userKey);
+        $rateFile = $rateLimitDir . '/' . $userKeyHash . '.json';
+        $now = microtime(true);
+        $blockFile = $rateLimitDir . '/' . $userKeyHash . '.block';
+        
+        // Se estiver bloqueado, retorna erro
+        if (file_exists($blockFile)) {
+            $blockTime = (int)file_get_contents($blockFile);
+            if ($blockTime > time()) {
+                abort(429, 'Rate limit excedido. Tente novamente em 1 minuto.');
+            } else {
+                unlink($blockFile);
+            }
+        }
+        
+        // Lê histórico de requisições
+        $history = [];
+        if (file_exists($rateFile)) {
+            $history = json_decode(file_get_contents($rateFile), true);
+            if (!is_array($history)) $history = [];
+        }
+        
+        // Remove requisições mais antigas que 1 segundo
+        $history = array_filter($history, function($ts) use ($now) {
+            return ($now - $ts) < 1.0;
+        });
+        
+        // Adiciona timestamp atual
+        $history[] = $now;
+        
+        // Se excedeu 3 requisições no último segundo, bloqueia por 1 minuto
+        if (count($history) > 3) {
+            file_put_contents($blockFile, time() + 60);
+            abort(429, 'Rate limit excedido. Tente novamente em 1 minuto.');
+        }
+        
+        // Salva histórico atualizado
+        file_put_contents($rateFile, json_encode($history));
     }
 }

@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\UsersKey;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Controllers\Api\WhatsappController;
 
 class UsuariosController extends Controller
 {
@@ -79,8 +80,14 @@ class UsuariosController extends Controller
         $usuario = User::where('id', $usuarioId)->first();
 
         if ($request->tipo === 'status') {
-            $status = $usuario->status == 5 ? 1 : 5;
-            $message = $usuario->status == 5 ? "Status alterado para pendente!" : "Status alterado para Aprovado";
+            $status = ($usuario->status == 5 || $usuario->status == 0) ? 1 : 5;
+            $message = $status == 5 ? "Status alterado para pendente!" : "Status alterado para Aprovado";
+
+            if($status == 1) {
+                $whatsapp = new WhatsappController();
+                $whatsapp->sendMessage($usuario->telefone, 'conta_aprovada');
+            }
+
             $usuario->update(['status' => $status]);
         }
 
