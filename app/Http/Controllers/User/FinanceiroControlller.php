@@ -87,7 +87,8 @@ class FinanceiroControlller extends Controller
             'taxa_cash_in_fixa' => $userData->taxa_cash_in_fixa ?? $taxa_fixa_padrao,
             'taxa_cash_out' => $userData->taxa_cash_out ?? $taxa_cash_out,
             'taxa_cash_out_fixa' => $userData->taxa_cash_out_fixa ?? $taxa_fixa_padrao,
-            'taxa_fixa_padrao' => $taxa_fixa_padrao
+            'taxa_fixa_padrao' => $taxa_fixa_padrao,
+            'baseline_cash_out' => $userData->baseline_cash_out ?? 0
         ];
 
         $request = request();

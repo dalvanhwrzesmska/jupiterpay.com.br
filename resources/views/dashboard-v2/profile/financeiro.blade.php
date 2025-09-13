@@ -383,9 +383,16 @@
                     containerValorLiquido.style.display = "block";
                 }
 
+                let baseline_cash_out = parseFloat("{{ $taxas['baseline_cash_out'] }}") || 0;
                 let tx_cash_out = parseFloat("{{ $taxas['taxa_cash_out'] }}") || 0;
                 let taxa_fixa_padrao = parseFloat("{{ $taxas['taxa_cash_out_fixa'] }}") || 0;
+                let somatorioTaxas = (currentValue * (tx_cash_out / 100)) + taxa_fixa_padrao;
                 let valorLiquido = (currentValue - taxa_fixa_padrao) * (1 - tx_cash_out / 100);
+
+                if(somatorioTaxas < baseline_cash_out){
+                    somatorioTaxas = baseline_cash_out;
+                    valorLiquido = currentValue - baseline_cash_out;
+                }
 
                 valorLiquidoInput.innerText = "Valor líquido a receber: " +
                     valorLiquido.toLocaleString("pt-BR", {
